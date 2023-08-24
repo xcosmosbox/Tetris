@@ -150,45 +150,48 @@ export function main() {
    * @param s Current state
    */
   const render = (s: State) => {
-    // Add blocks to the main grid canvas
-    const cube = createSvgElement(svg.namespaceURI, "rect", {
-      height: `${Block.HEIGHT}`,
-      width: `${Block.WIDTH}`,
-      x: "0",
-      y: "0",
-      style: "fill: green",
-    });
-    svg.appendChild(cube);
-    const cube2 = createSvgElement(svg.namespaceURI, "rect", {
-      height: `${Block.HEIGHT}`,
-      width: `${Block.WIDTH}`,
-      x: `${Block.WIDTH * (3 - 1)}`,
-      y: `${Block.HEIGHT * (20 - 1)}`,
-      style: "fill: red",
-    });
-    svg.appendChild(cube2);
-    const cube3 = createSvgElement(svg.namespaceURI, "rect", {
-      height: `${Block.HEIGHT}`,
-      width: `${Block.WIDTH}`,
-      x: `${Block.WIDTH * (4 - 1)}`,
-      y: `${Block.HEIGHT * (20 - 1)}`,
-      style: "fill: red",
-    });
-    svg.appendChild(cube3);
+    // comment the example code
+    // // Add blocks to the main grid canvas
+    // const cube = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: "0",
+    //   y: "0",
+    //   style: "fill: green",
+    // });
+    // svg.appendChild(cube);
+    // const cube2 = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `${Block.WIDTH * (3 - 1)}`,
+    //   y: `${Block.HEIGHT * (20 - 1)}`,
+    //   style: "fill: red",
+    // });
+    // svg.appendChild(cube2);
+    // const cube3 = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `${Block.WIDTH * (4 - 1)}`,
+    //   y: `${Block.HEIGHT * (20 - 1)}`,
+    //   style: "fill: red",
+    // });
+    // svg.appendChild(cube3);
 
-    // Add a block to the preview canvas
-    const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
-      height: `${Block.HEIGHT}`,
-      width: `${Block.WIDTH}`,
-      x: `${Block.WIDTH * 2}`,
-      y: `${Block.HEIGHT}`,
-      style: "fill: green",
-    });
-    preview.appendChild(cubePreview);
+    // // Add a block to the preview canvas
+    // const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `${Block.WIDTH * 2}`,
+    //   y: `${Block.HEIGHT}`,
+    //   style: "fill: green",
+    // });
+    // preview.appendChild(cubePreview);
   };
 
   const source$ = merge(tick$)
-    .pipe(scan((s: State) => ({ gameEnd: true }), initialState))
+    .pipe(
+        scan((s: State) => ({ gameEnd: false }), initialState)
+      )
     .subscribe((s: State) => {
       render(s);
 
