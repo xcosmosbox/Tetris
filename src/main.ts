@@ -44,6 +44,21 @@ type Key = "KeyS" | "KeyA" | "KeyD";
 type Event = "keydown" | "keyup" | "keypress";
 
 /** Utility functions */
+// util function to simulate factory method to create the attribute for new block
+const createNewShapeFactory = ():GameCube =>{
+  const colors = ["red", "green", "blue", "yellow"];
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  const newBlock:GameCube = {
+    color: randomColor,
+    shape: 0, // TODO: Change to SHAPE type, when i finished the basic feature
+    position: { //init position
+      x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
+      y: 0
+    }
+  };
+
+  return newBlock;
+}
 
 /** State processing */
 
@@ -53,6 +68,7 @@ type Position = Readonly<{
 }>;
 
 type GameCube = Readonly<{
+  color:string;
   shape:number; // TODO: Change to SHAPE type, when i finished the basic feature
   position:Position;
 }>;
@@ -60,7 +76,8 @@ type GameCube = Readonly<{
 type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: (GameCube | null);
-  oldGameCubes?: (GameCube | null)[];
+  oldGameCubes?: (GameCube | null)[]; // to record old blocks
+  needToCreateCube?: boolean;
 }>;
 
 const initialState: State = {
@@ -73,7 +90,26 @@ const initialState: State = {
  * @param s Current state
  * @returns Updated state
  */
-const tick = (s: State) => s;
+const tick = (s: State):State => {
+
+  // check currentGameCube whether is exist
+  if (!s.currentGameCube) {
+    // does not exist
+    // update currentGameCube and needToCreateCube
+    return {
+      ...s,
+      currentGameCube: createNewShapeFactory(),
+      needToCreateCube: true
+    };
+  } else{
+    return {
+      ...s,
+      needToCreateCube: false
+    };
+  }
+
+  return s;
+};
 
 /** Rendering (side effects) */
 
@@ -199,6 +235,16 @@ export function main() {
     // });
     // preview.appendChild(cubePreview);
 
+    if (s.currentGameCube && s.needToCreateCube) {
+      const cube = createSvgElement(svg.namespaceURI, "rect", {
+        height: `${Block.HEIGHT}`,
+        width: `${Block.WIDTH}`,
+        x: `${s.currentGameCube.position.x}`,
+        y: `${s.currentGameCube.position.y}`,
+        style: "fill: "+`${s.currentGameCube.color}`,
+      });
+      svg.appendChild(cube);
+    }
 
 
 
@@ -206,7 +252,7 @@ export function main() {
 
   const source$ = merge(tick$)
     .pipe(
-        scan((s: State) => callTick(s), initialState)
+        scan((s: State) => tick(s), initialState)
       )
     .subscribe((s: State) => {
       render(s);
@@ -218,10 +264,6 @@ export function main() {
       }
     });
 
-
-  function callTick(s: State): State {
-    throw new Error("Function not implemented.");
-  }
 
 }
 
