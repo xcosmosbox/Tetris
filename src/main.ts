@@ -15,7 +15,7 @@
 import "./style.css";
 
 import { fromEvent, interval, merge } from "rxjs";
-import { map, filter, scan } from "rxjs/operators";
+import { map, filter, scan, takeWhile } from "rxjs/operators";
 
 /** Constants */
 
@@ -47,8 +47,20 @@ type Event = "keydown" | "keyup" | "keypress";
 
 /** State processing */
 
+type Position = Readonly<{
+  x:number,
+  y:number
+}>;
+
+type GameCube = Readonly<{
+  shape:number; // TODO: Change to SHAPE type, when i finished the basic feature
+  position:Position;
+}>;
+
 type State = Readonly<{
   gameEnd: boolean;
+  currentGameCube?: (GameCube | null);
+  oldGameCubes?: (GameCube | null)[];
 }>;
 
 const initialState: State = {
@@ -186,11 +198,15 @@ export function main() {
     //   style: "fill: green",
     // });
     // preview.appendChild(cubePreview);
+
+
+
+
   };
 
   const source$ = merge(tick$)
     .pipe(
-        scan((s: State) => ({ gameEnd: false }), initialState)
+        scan((s: State) => callTick(s), initialState)
       )
     .subscribe((s: State) => {
       render(s);
@@ -201,6 +217,12 @@ export function main() {
         hide(gameover);
       }
     });
+
+
+  function callTick(s: State): State {
+    throw new Error("Function not implemented.");
+  }
+
 }
 
 // The following simply runs your main function on window load.  Make sure to leave it in place.
@@ -209,3 +231,7 @@ if (typeof window !== "undefined") {
     main();
   };
 }
+
+
+
+
