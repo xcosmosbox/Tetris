@@ -77,11 +77,20 @@ type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: (GameCube | null);
   oldGameCubes?: (GameCube | null)[]; // to record old blocks
-  needToCreateCube?: boolean;
+  needToCreateCube?: (boolean | null);
+  gameLevel?:(number | null);
+  gameScore?: (number|null);
+  gameHighScore?: (number | null);
+  dropRate?: (number | null);
+
 }>;
 
 const initialState: State = {
   gameEnd: false,
+  gameLevel: 1,
+  gameScore: 0,
+  gameHighScore: 0,
+  dropRate: Block.HEIGHT
 } as const;
 
 /**
@@ -198,33 +207,6 @@ export function main() {
    * @param s Current state
    */
   const render = (s: State) => {
-    // comment the example code
-    // // Add blocks to the main grid canvas
-    // const cube = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: "0",
-    //   y: "0",
-    //   style: "fill: green",
-    // });
-    // svg.appendChild(cube);
-    // const cube2 = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `${Block.WIDTH * (3 - 1)}`,
-    //   y: `${Block.HEIGHT * (20 - 1)}`,
-    //   style: "fill: red",
-    // });
-    // svg.appendChild(cube2);
-    // const cube3 = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `${Block.WIDTH * (4 - 1)}`,
-    //   y: `${Block.HEIGHT * (20 - 1)}`,
-    //   style: "fill: red",
-    // });
-    // svg.appendChild(cube3);
-
     // // Add a block to the preview canvas
     // const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
     //   height: `${Block.HEIGHT}`,
