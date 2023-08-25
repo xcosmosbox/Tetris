@@ -17,6 +17,18 @@ import "./style.css";
 import { BehaviorSubject, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 
+
+/**
+ * ONLY FOR TEST
+ */
+const print = (message:any) =>{
+  console.log(message);
+}
+/**
+ * ONLY FOR TEST
+ */
+
+
 /** Constants */
 
 const Viewport = {
@@ -60,17 +72,60 @@ const createNewShapeFactory = ():GameCube =>{
   return newBlock;
 }
 
+// util function to check line whether is need to remove
+const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
+  return oldGameCubes.some(row => row.every(cube => cube !== null));
+}
 // util function to check line removed and update related data
-const checkLineRemoved = (s: State):ScoreAndDropRate =>{
+const lineRemoved = (s: State):ScoreAndDropRate =>{
   // TODO: update the score and call gameScoreChangeSubject.next(THE_LEAST_SCORE), gameScoreChange$ will subscribe the change
   /** if (one line has been removed){
    *    const newScore = s.scoreAndDropRate.gameScore + getPoints;
    *    const newLevel = Math.floor(newScore / 100) + 1;
    *    const newHightScore = newScore > s.scoreAndDropRate.gameHighScore ? newScore : s.scoreAndDropRate.gameHighScore;
-   *    const newDropRate = 1 + (newLevel/10);
+   *    const newDropRate = newLevel/10;
    *    return {newScore, newLevel, newHightScore, newDropRate} as ScoreAndDropRate;
    *  } */ 
   return {...s.scoreAndDropRate} as ScoreAndDropRate;
+}
+
+// util function to update position of block
+const updatePosition = (s: State, updateScoreAndDropRate:ScoreAndDropRate): Position =>{
+  
+  return {
+    x: s.currentGameCube?.position.x,
+    y: s.currentGameCube?.position.y as number + Block.HEIGHT * (1 + (updateScoreAndDropRate.dropRate as number))
+  } as Position;
+}
+
+// util function to check whether is continue for current block TODO: check more detail for future
+const checkContinueMove = (s: State): boolean =>{
+  if(!s.currentGameCube){
+    return false;
+  }
+
+  if(s.oldGameCubes && s.currentGameCube && 
+    (s.currentGameCube?.position.y === Viewport.CANVAS_HEIGHT - Block.HEIGHT || 
+      s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)])){
+        return false;
+  }
+
+  return true;
+}
+
+//util function to map new array
+const updateOldGameCubes = (oldArray: GameCube[][], updateRow: number, updateCol: number, newValue: GameCube):GameCube[][] => {
+  print(2);
+  print(`row: ${updateRow}`);
+  print(`col: ${updateCol}`);
+  return oldArray.map((row, i) => {
+    if (i === updateRow){
+      return row.map((cube, j) => {
+        return j === updateCol ? newValue : cube;
+      })
+    }
+    return row;
+  });
 }
 
 /** State processing */
@@ -96,9 +151,9 @@ type ScoreAndDropRate = Readonly<{
 type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: (GameCube | null);
-  oldGameCubes?: (GameCube | null)[]; // to record old blocks
+  oldGameCubes: (GameCube | null)[][]; // to record old blocks
   needToCreateCube?: (boolean | null);
-  scoreAndDropRate?: (ScoreAndDropRate | null);
+  scoreAndDropRate: (ScoreAndDropRate | null);
 }>;
 
 const initialState: State = {
@@ -107,8 +162,9 @@ const initialState: State = {
     gameLevel: 1,
     gameScore: 0,
     gameHighScore: 0,
-    dropRate: Block.HEIGHT
-  } as ScoreAndDropRate
+    dropRate: 0
+  } as ScoreAndDropRate,
+  oldGameCubes : new Array(Constants.GRID_HEIGHT).fill(null).map(()=>new Array(Constants.GRID_WIDTH).fill(null))
   
 } as const;
 
@@ -120,25 +176,87 @@ const initialState: State = {
  */
 const tick = (s: State):State => {
 
-  // check currentGameCube whether is exist
-  if (!s.currentGameCube) {
-    // does not exist
-    // update currentGameCube and needToCreateCube
-    return {
-      ...s,
-      currentGameCube: createNewShapeFactory(),
-      needToCreateCube: true
-    } as State;
+  if(checkContinueMove(s)){
+    if(needLineRemove(s.oldGameCubes as GameCube[][])){
+      const updateScoreAndDropRate = lineRemoved(s);
+      const nextPosition = updatePosition(s, updateScoreAndDropRate);
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:nextPosition
+        },
+        needToCreateCube: false,
+        scoreAndDropRate: updateScoreAndDropRate
+      } as State;
+    } else {
+      const nextPosition = updatePosition(s, s.scoreAndDropRate as ScoreAndDropRate);
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:nextPosition
+        },
+        needToCreateCube: false
+      } as State;
+    }
   } else{
-    const updateScoreAndDropRate = checkLineRemoved(s);
-    return {
-      ...s,
-      needToCreateCube: false,
-      scoreAndDropRate: checkLineRemoved(s)
-    } as State;
+    if(!s.currentGameCube){
+      return {
+        ...s,
+        currentGameCube: createNewShapeFactory(),
+        needToCreateCube: true
+      } as State;
+    } else if (needLineRemove(s.oldGameCubes as GameCube[][])){
+      const updateScoreAndDropRate = lineRemoved(s);
+      const mapOldGameCubes = updateOldGameCubes(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
+      return {
+        ...s,
+        currentGameCube: createNewShapeFactory(),
+        oldGameCubes: mapOldGameCubes,
+        needToCreateCube: true,
+        scoreAndDropRate: updateScoreAndDropRate
+      } as State;
+    } else {
+      print("1")
+      const mapOldGameCubes = updateOldGameCubes(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
+      print("3")
+      print(mapOldGameCubes)
+      return {
+        ...s,
+        currentGameCube: createNewShapeFactory(),
+        oldGameCubes: mapOldGameCubes,
+        needToCreateCube: true
+      } as State;
+    }
+    
   }
 
-  return s;
+
+  // // check currentGameCube whether is exist
+  // if (!s.currentGameCube) {
+  //   // does not exist
+  //   // update currentGameCube and needToCreateCube
+  //   return {
+  //     ...s,
+  //     currentGameCube: createNewShapeFactory(),
+  //     needToCreateCube: true
+  //   } as State;
+  // } else{
+  //   const updateScoreAndDropRate = lineRemoved(s);
+  //   const nextPosition = updatePosition(s, updateScoreAndDropRate);
+  //   return {
+  //     ...s,
+  //     currentGameCube:{
+  //       ...s.currentGameCube,
+  //       position:nextPosition
+  //     },
+  //     needToCreateCube: false,
+  //     scoreAndDropRate: lineRemoved(s)
+  //   } as State;
+  // }
+
+  // return s;
 };
 
 const gameScoreChange$  = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameScore as number);
@@ -231,6 +349,24 @@ export function main() {
   const tick$ = interval(Constants.TICK_RATE_MS);
 
   /**
+   * render new child to svg
+   * 
+   * @param block one game block
+   */
+  const renderChildToSvg = (block: GameCube | null) => {
+    if(block){
+      const cube = createSvgElement(svg.namespaceURI, "rect", {
+        height: `${Block.HEIGHT}`,
+        width: `${Block.WIDTH}`,
+        x: `${block.position.x}`,
+        y: `${block.position.y}`,
+        style: "fill: "+`${block.color}`,
+      });
+      svg.appendChild(cube);
+    }
+  }
+
+  /**
    * Renders the current state to the canvas.
    *
    * In MVC terms, this updates the View using the Model.
@@ -248,16 +384,65 @@ export function main() {
     // });
     // preview.appendChild(cubePreview);
 
-    if (s.currentGameCube && s.needToCreateCube) {
-      const cube = createSvgElement(svg.namespaceURI, "rect", {
-        height: `${Block.HEIGHT}`,
-        width: `${Block.WIDTH}`,
-        x: `${s.currentGameCube.position.x}`,
-        y: `${s.currentGameCube.position.y}`,
-        style: "fill: "+`${s.currentGameCube.color}`,
-      });
-      svg.appendChild(cube);
+    // print(s.oldGameCubes);
+
+    svg.innerHTML = '';
+
+    if(s.currentGameCube){
+      renderChildToSvg(s.currentGameCube);
     }
+
+    if(s.oldGameCubes){
+      s.oldGameCubes.map(row => row.map(renderChildToSvg));
+    }
+
+
+
+
+
+
+
+    // // left top (0,0)
+    // const cube = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `0`,
+    //   y: `0`,
+    //   style: "fill: "+`red`,
+    // });
+    // svg.appendChild(cube);
+
+    // // right top (${Viewport.CANVAS_WIDTH-Block.WIDTH} , 0)
+    // const cube2 = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `${Viewport.CANVAS_WIDTH-Block.WIDTH}`,
+    //   y: `0`,
+    //   style: "fill: "+`red`,
+    // });
+    // svg.appendChild(cube2);
+
+    // // left bottom (0, {Viewport.CANVAS_HEIGHT - Block.HEIGHT})
+    // const cube3 = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `0`,
+    //   y: `${Viewport.CANVAS_HEIGHT - Block.HEIGHT}`,
+    //   style: "fill: "+`red`,
+    // });
+    // svg.appendChild(cube3);
+
+    // // left bottom (${Viewport.CANVAS_WIDTH - Block.WIDTH}, {Viewport.CANVAS_HEIGHT - Block.HEIGHT})
+    // const cube4 = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `${Viewport.CANVAS_WIDTH - Block.WIDTH}`,
+    //   y: `${Viewport.CANVAS_HEIGHT - Block.HEIGHT}`,
+    //   style: "fill: "+`red`,
+    // });
+    // svg.appendChild(cube4);
+
+    
 
 
 
