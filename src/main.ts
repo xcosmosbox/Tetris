@@ -63,6 +63,13 @@ const createNewShapeFactory = ():GameCube =>{
 // util function to check line removed and update related data
 const checkLineRemoved = (s: State):ScoreAndDropRate =>{
   // TODO: update the score and call gameScoreChangeSubject.next(THE_LEAST_SCORE), gameScoreChange$ will subscribe the change
+  /** if (one line has been removed){
+   *    const newScore = s.scoreAndDropRate.gameScore + getPoints;
+   *    const newLevel = Math.floor(newScore / 100) + 1;
+   *    const newHightScore = newScore > s.scoreAndDropRate.gameHighScore ? newScore : s.scoreAndDropRate.gameHighScore;
+   *    const newDropRate = 1 + (newLevel/10);
+   *    return {newScore, newLevel, newHightScore, newDropRate} as ScoreAndDropRate;
+   *  } */ 
   return {...s.scoreAndDropRate} as ScoreAndDropRate;
 }
 
@@ -134,17 +141,13 @@ const tick = (s: State):State => {
   return s;
 };
 
-const gameScoreChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameScore as number);
-const gameScoreChange$ = gameScoreChangeSubject.asObservable();
+const gameScoreChange$  = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameScore as number);
 
-const gameLevelChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameLevel as number);
-const gameLevelChange$ = gameLevelChangeSubject.asObservable();
+const gameLevelChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameLevel as number);
 
-const gameHighScoreChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameHighScore as number);
-const gameHighScoreChange$ = gameHighScoreChangeSubject.asObservable();
+const gameHighScoreChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameHighScore as number);
 
-const dropRateChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.dropRate as number);
-const dropRateChange$ = dropRateChangeSubject.asObservable();
+const dropRateChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.dropRate as number);
 
 
 
