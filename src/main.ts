@@ -176,6 +176,13 @@ const initialState: State = {
  */
 const tick = (s: State):State => {
 
+  if(s.oldGameCubes[0].some(cube => cube !== null)){
+    return {
+      ...s,
+      gameEnd: true
+    } as State;
+  }
+
   if(checkContinueMove(s)){
     if(needLineRemove(s.oldGameCubes as GameCube[][])){
       const updateScoreAndDropRate = lineRemoved(s);
@@ -218,10 +225,7 @@ const tick = (s: State):State => {
         scoreAndDropRate: updateScoreAndDropRate
       } as State;
     } else {
-      print("1")
       const mapOldGameCubes = updateOldGameCubes(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
-      print("3")
-      print(mapOldGameCubes)
       return {
         ...s,
         currentGameCube: createNewShapeFactory(),
@@ -232,40 +236,7 @@ const tick = (s: State):State => {
     
   }
 
-
-  // // check currentGameCube whether is exist
-  // if (!s.currentGameCube) {
-  //   // does not exist
-  //   // update currentGameCube and needToCreateCube
-  //   return {
-  //     ...s,
-  //     currentGameCube: createNewShapeFactory(),
-  //     needToCreateCube: true
-  //   } as State;
-  // } else{
-  //   const updateScoreAndDropRate = lineRemoved(s);
-  //   const nextPosition = updatePosition(s, updateScoreAndDropRate);
-  //   return {
-  //     ...s,
-  //     currentGameCube:{
-  //       ...s.currentGameCube,
-  //       position:nextPosition
-  //     },
-  //     needToCreateCube: false,
-  //     scoreAndDropRate: lineRemoved(s)
-  //   } as State;
-  // }
-
-  // return s;
 };
-
-const gameScoreChange$  = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameScore as number);
-
-const gameLevelChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameLevel as number);
-
-const gameHighScoreChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameHighScore as number);
-
-const dropRateChange$ = new BehaviorSubject<number>(initialState.scoreAndDropRate?.dropRate as number);
 
 
 
@@ -361,6 +332,7 @@ export function main() {
         x: `${block.position.x}`,
         y: `${block.position.y}`,
         style: "fill: "+`${block.color}`,
+        class: "gameBlock"
       });
       svg.appendChild(cube);
     }
@@ -386,7 +358,9 @@ export function main() {
 
     // print(s.oldGameCubes);
 
-    svg.innerHTML = '';
+    // svg.innerHTML = '';
+    const blocks = svg.querySelectorAll('.gameBlock');
+    blocks.forEach(block => svg.removeChild(block));
 
     if(s.currentGameCube){
       renderChildToSvg(s.currentGameCube);
@@ -395,11 +369,6 @@ export function main() {
     if(s.oldGameCubes){
       s.oldGameCubes.map(row => row.map(renderChildToSvg));
     }
-
-
-
-
-
 
 
     // // left top (0,0)
@@ -454,7 +423,7 @@ export function main() {
       )
     .subscribe((s: State) => {
       render(s);
-
+      
       if (s.gameEnd) {
         show(gameover);
       } else {
