@@ -14,7 +14,7 @@
 
 import "./style.css";
 
-import { fromEvent, interval, merge } from "rxjs";
+import { BehaviorSubject, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 
 /** Constants */
@@ -60,6 +60,12 @@ const createNewShapeFactory = ():GameCube =>{
   return newBlock;
 }
 
+// util function to check line removed and update related data
+const checkLineRemoved = (s: State):ScoreAndDropRate =>{
+  // TODO: update the score and call gameScoreChangeSubject.next(THE_LEAST_SCORE), gameScoreChange$ will subscribe the change
+  return {...s.scoreAndDropRate} as ScoreAndDropRate;
+}
+
 /** State processing */
 
 type Position = Readonly<{
@@ -73,24 +79,30 @@ type GameCube = Readonly<{
   position:Position;
 }>;
 
+type ScoreAndDropRate = Readonly<{
+  gameLevel?:(number | null);
+  gameScore?: (number|null);
+  gameHighScore?: (number | null);
+  dropRate?: (number | null);
+}>
+
 type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: (GameCube | null);
   oldGameCubes?: (GameCube | null)[]; // to record old blocks
   needToCreateCube?: (boolean | null);
-  gameLevel?:(number | null);
-  gameScore?: (number|null);
-  gameHighScore?: (number | null);
-  dropRate?: (number | null);
-
+  scoreAndDropRate?: (ScoreAndDropRate | null);
 }>;
 
 const initialState: State = {
   gameEnd: false,
-  gameLevel: 1,
-  gameScore: 0,
-  gameHighScore: 0,
-  dropRate: Block.HEIGHT
+  scoreAndDropRate: {
+    gameLevel: 1,
+    gameScore: 0,
+    gameHighScore: 0,
+    dropRate: Block.HEIGHT
+  } as ScoreAndDropRate
+  
 } as const;
 
 /**
@@ -109,16 +121,32 @@ const tick = (s: State):State => {
       ...s,
       currentGameCube: createNewShapeFactory(),
       needToCreateCube: true
-    };
+    } as State;
   } else{
+    const updateScoreAndDropRate = checkLineRemoved(s);
     return {
       ...s,
-      needToCreateCube: false
-    };
+      needToCreateCube: false,
+      scoreAndDropRate: checkLineRemoved(s)
+    } as State;
   }
 
   return s;
 };
+
+const gameScoreChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameScore as number);
+const gameScoreChange$ = gameScoreChangeSubject.asObservable();
+
+const gameLevelChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameLevel as number);
+const gameLevelChange$ = gameLevelChangeSubject.asObservable();
+
+const gameHighScoreChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.gameHighScore as number);
+const gameHighScoreChange$ = gameHighScoreChangeSubject.asObservable();
+
+const dropRateChangeSubject = new BehaviorSubject<number>(initialState.scoreAndDropRate?.dropRate as number);
+const dropRateChange$ = dropRateChangeSubject.asObservable();
+
+
 
 /** Rendering (side effects) */
 
