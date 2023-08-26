@@ -218,47 +218,47 @@ const moveRight = (s:State, amount:number): State => {
   return s;
 }
 
-// util function to move
-const moveDown = (s:State, amount:number): State => {
-  if(s.currentGameCube?.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT)){
-    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)]){
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:s.currentGameCube?.position.x,
-            y:Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)*Block.HEIGHT
-          }
-        }
-      } as State;
-    } else {
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:s.currentGameCube?.position.x,
-            y:(s.currentGameCube?.position.y as number) + amount 
-          }
-        }
-      } as State;
-    }
-  } else {
-    return {
-      ...s,
-      currentGameCube:{
-        ...s.currentGameCube,
-        position:{
-          x:s.currentGameCube?.position.x,
-          y:(Viewport.CANVAS_HEIGHT - Block.HEIGHT)
-        }
-      }
-    } as State;
-  }
+// // util function to move
+// const moveDown = (s:State, amount:number): State => {
+//   if(s.currentGameCube?.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT)){
+//     if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)]){
+//       return {
+//         ...s,
+//         currentGameCube:{
+//           ...s.currentGameCube,
+//           position:{
+//             x:s.currentGameCube?.position.x,
+//             y:Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)*Block.HEIGHT
+//           }
+//         }
+//       } as State;
+//     } else {
+//       return {
+//         ...s,
+//         currentGameCube:{
+//           ...s.currentGameCube,
+//           position:{
+//             x:s.currentGameCube?.position.x,
+//             y:(s.currentGameCube?.position.y as number) + amount 
+//           }
+//         }
+//       } as State;
+//     }
+//   } else {
+//     return {
+//       ...s,
+//       currentGameCube:{
+//         ...s.currentGameCube,
+//         position:{
+//           x:s.currentGameCube?.position.x,
+//           y:(Viewport.CANVAS_HEIGHT - Block.HEIGHT)
+//         }
+//       }
+//     } as State;
+//   }
 
-  return s;
-}
+//   return s;
+// }
 
 /** State processing */
 
@@ -360,22 +360,23 @@ const tick = (s: State, action: ActionType = null):State => {
           return newState;
         }
       } else if((action as Keypress).axis === 'y' && (action as Keypress).amount > 0){
-        const newState = moveDown(s,(action as Keypress).amount);
-        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-          const updateState = lineRemoved(newState);
-          const nextPosition = updatePosition(newState, updateState);
-          return {
-            ...newState,
-            currentGameCube:{
-              ...newState.currentGameCube,
-              position:nextPosition
-            },
-            needToCreateCube: false,
-            scoreAndDropRate: updateState
-          } as State;
-        } else{
-          return newState;
-        }
+        return tick(s);
+        // const newState = moveDown(s,(action as Keypress).amount);
+        // if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+        //   const updateState = lineRemoved(newState);
+        //   const nextPosition = updatePosition(newState, updateState);
+        //   return {
+        //     ...newState,
+        //     currentGameCube:{
+        //       ...newState.currentGameCube,
+        //       position:nextPosition
+        //     },
+        //     needToCreateCube: false,
+        //     scoreAndDropRate: updateState
+        //   } as State;
+        // } else{
+        //   return newState;
+        // }
       }
     }
 
