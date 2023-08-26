@@ -169,14 +169,19 @@ const initialState: State = {
   oldGameCubes : new Array(Constants.GRID_HEIGHT).fill(null).map(()=>new Array(Constants.GRID_WIDTH).fill(null))
   
 } as const;
+type Keypress = Readonly<{
+  axis: 'x' | 'y',
+  amount: number
+}>;
 
+type ActionType = ((number | Keypress) | null);
 /**
  * Updates the state by proceeding with one time step.
  *
  * @param s Current state
  * @returns Updated state
  */
-const tick = (s: State):State => {
+const tick = (s: State, action: ActionType = null):State => {
 
   // If there is a block at the top, it means gameOver
   if(s.oldGameCubes[0].some(cube => cube !== null)){
@@ -321,12 +326,17 @@ export function main() {
 
   const key$ = fromEvent<KeyboardEvent>(document, "keypress");
 
-  const fromKey = (keyCode: Key) =>
-    key$.pipe(filter(({ code }) => code === keyCode));
+  
 
-  const left$ = fromKey("KeyA");
-  const right$ = fromKey("KeyD");
-  const down$ = fromKey("KeyS");
+  const fromKey = (keyCode: Key, userKeypress: Keypress) =>
+    key$.pipe(
+      filter(({ code }) => code === keyCode),
+      map(() => userKeypress)
+    );
+
+  const left$ = fromKey("KeyA", {axis:'x', amount: -Block.WIDTH});
+  const right$ = fromKey("KeyD", {axis:'x', amount: Block.WIDTH});
+  const down$ = fromKey("KeyS", {axis: 'y', amount: Block.HEIGHT});
 
   /** Observables */
 
@@ -428,9 +438,16 @@ export function main() {
 
   };
 
-  const source$ = merge(tick$)
+
+  const source$ = merge(tick$, left$, right$, down$)
     .pipe(
-        scan((s: State) => tick(s), initialState)
+        scan<ActionType, State>((s: State, action:ActionType) => {
+          if(typeof action === 'number'){
+            return tick(s);
+          } else {
+            return tick(s, action);
+          }
+        }, initialState)
       )
     .subscribe((s: State) => {
       render(s);
