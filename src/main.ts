@@ -130,6 +130,136 @@ const updateOldGameCubes = (oldArray: GameCube[][], updateRow: number, updateCol
   });
 }
 
+// util function to move
+const moveLeft = (s:State, amount:number): State => {
+  // left amount is negative number
+  if(s.currentGameCube?.position.x as number + amount >= 0){
+    print("1");
+    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)-1]){
+      print("3");
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
+            y:s.currentGameCube?.position.y
+          }
+        }
+      } as State;
+    } else{
+      print("4")
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:(s.currentGameCube?.position.x as number)+amount,
+            y:s.currentGameCube?.position.y
+          }
+        }
+      } as State;
+    }
+  } else {
+    print("2");
+    return {
+      ...s,
+      currentGameCube:{
+        ...s.currentGameCube,
+        position:{
+          x:0,
+          y:s.currentGameCube?.position.y
+        }
+      }
+    } as State;
+  }
+}
+
+// util function to move
+const moveRight = (s:State, amount:number): State => {
+  if(s.currentGameCube?.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH)){
+    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)+1]){
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
+            y:s.currentGameCube?.position.y
+          }
+        }
+      } as State;
+    } else {
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:(s.currentGameCube?.position.x as number)+amount,
+            y:s.currentGameCube?.position.y
+          }
+        }
+      } as State;
+    }
+  } else {
+    return {
+      ...s,
+      currentGameCube:{
+        ...s.currentGameCube,
+        position:{
+          x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
+          y:s.currentGameCube?.position.y
+        }
+      }
+    } as State;
+  }
+
+
+  return s;
+}
+
+// util function to move
+const moveDown = (s:State, amount:number): State => {
+  if(s.currentGameCube?.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT)){
+    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)]){
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:s.currentGameCube?.position.x,
+            y:Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)*Block.HEIGHT
+          }
+        }
+      } as State;
+    } else {
+      return {
+        ...s,
+        currentGameCube:{
+          ...s.currentGameCube,
+          position:{
+            x:s.currentGameCube?.position.x,
+            y:(s.currentGameCube?.position.y as number) + amount 
+          }
+        }
+      } as State;
+    }
+  } else {
+    return {
+      ...s,
+      currentGameCube:{
+        ...s.currentGameCube,
+        position:{
+          x:s.currentGameCube?.position.x,
+          y:(Viewport.CANVAS_HEIGHT - Block.HEIGHT)
+        }
+      }
+    } as State;
+  }
+
+  return s;
+}
+
 /** State processing */
 
 type Position = Readonly<{
@@ -169,6 +299,7 @@ const initialState: State = {
   oldGameCubes : new Array(Constants.GRID_HEIGHT).fill(null).map(()=>new Array(Constants.GRID_WIDTH).fill(null))
   
 } as const;
+
 type Keypress = Readonly<{
   axis: 'x' | 'y',
   amount: number
@@ -193,6 +324,61 @@ const tick = (s: State, action: ActionType = null):State => {
 
   // If the current block can continue to function
   if(checkContinueMove(s)){
+    if(action !== null){
+      if((action as Keypress).axis === 'x' && (action as Keypress).amount < 0){
+        const newState = moveLeft(s,(action as Keypress).amount);
+        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+          const updateState = lineRemoved(newState);
+          const nextPosition = updatePosition(newState, updateState);
+          return {
+            ...newState,
+            currentGameCube:{
+              ...newState.currentGameCube,
+              position:nextPosition
+            },
+            needToCreateCube: false,
+            scoreAndDropRate: updateState
+          } as State;
+        } else{
+          return newState;
+        }
+      } else if((action as Keypress).axis === 'x' && (action as Keypress).amount > 0){
+        const newState = moveRight(s,(action as Keypress).amount);
+        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+          const updateState = lineRemoved(newState);
+          const nextPosition = updatePosition(newState, updateState);
+          return {
+            ...newState,
+            currentGameCube:{
+              ...newState.currentGameCube,
+              position:nextPosition
+            },
+            needToCreateCube: false,
+            scoreAndDropRate: updateState
+          } as State;
+        } else{
+          return newState;
+        }
+      } else if((action as Keypress).axis === 'y' && (action as Keypress).amount > 0){
+        const newState = moveDown(s,(action as Keypress).amount);
+        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+          const updateState = lineRemoved(newState);
+          const nextPosition = updatePosition(newState, updateState);
+          return {
+            ...newState,
+            currentGameCube:{
+              ...newState.currentGameCube,
+              position:nextPosition
+            },
+            needToCreateCube: false,
+            scoreAndDropRate: updateState
+          } as State;
+        } else{
+          return newState;
+        }
+      }
+    }
+
     // If there is a row that needs to be cleared (scores can be obtained)
     if(needLineRemove(s.oldGameCubes as GameCube[][])){
       // line remove
