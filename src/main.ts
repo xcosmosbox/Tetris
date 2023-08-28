@@ -42,12 +42,20 @@ const Constants = {
   TICK_RATE_MS: 500,
   GRID_WIDTH: 10,
   GRID_HEIGHT: 20,
+  CUBE_NUMBERS: 4,
 } as const;
 
 const Block = {
   WIDTH: Viewport.CANVAS_WIDTH / Constants.GRID_WIDTH,
   HEIGHT: Viewport.CANVAS_HEIGHT / Constants.GRID_HEIGHT,
 };
+
+const SHAPES = {
+  SQUARE_BLOCK: 0,
+  RAISED_BLOCK: 1,
+  LIGHTNING_BLOCK: 2,
+  LINE_BLOCK: 3
+} as const;
 
 /** User input */
 
@@ -57,19 +65,12 @@ type Event = "keydown" | "keyup" | "keypress";
 
 /** Utility functions */
 // util function to simulate factory method to create the attribute for new block
-const createNewShapeFactory = ():GameCube =>{
-  const colors = ["red", "green", "blue", "yellow"];
-  const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  const newBlock:GameCube = {
-    color: randomColor,
-    shape: 0, // TODO: Change to SHAPE type, when i finished the basic feature
-    position: { //init position
-      x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-      y: 0
-    }
-  };
+const createNewShapeFactory = ():GameBlock =>{
+  // const shape = ["Square"];
+  // const randomShape = shape[Math.floor(Math.random() * shape.length)];
+  // if(randomShape === )
 
-  return newBlock;
+  return new SquareBlock();
 }
 
 // util function to check line whether is need to remove
@@ -91,13 +92,13 @@ const lineRemoved = (s: State):ScoreAndDropRate =>{
 }
 
 // util function to update position of block
-const updatePosition = (s: State, updateScoreAndDropRate:ScoreAndDropRate): Position =>{
-  // 
-  return {
-    x: s.currentGameCube?.position.x,
-    y: s.currentGameCube?.position.y as number + Block.HEIGHT * (1 + (updateScoreAndDropRate.dropRate as number))
-  } as Position;
-}
+// const updatePosition = (s: State, updateScoreAndDropRate:ScoreAndDropRate): Position =>{
+//   // 
+//   return {
+//     x: s.currentGameCube?.position.x,
+//     y: s.currentGameCube?.position.y as number + Block.HEIGHT * (1 + (updateScoreAndDropRate.dropRate as number))
+//   } as Position;
+// }
 
 // util function to check whether is continue for current block TODO: check more detail for future
 const checkContinueMove = (s: State): boolean =>{
@@ -107,17 +108,17 @@ const checkContinueMove = (s: State): boolean =>{
   }
 
   // If the cube reaches the bottom or there are other cubes below it, stop moving.
-  if(s.oldGameCubes && s.currentGameCube && 
-    (s.currentGameCube?.position.y === Viewport.CANVAS_HEIGHT - Block.HEIGHT || 
-      s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)])){
-        return false;
-  }
+  // if(s.oldGameCubes && s.currentGameCube && 
+  //   (s.currentGameCube?.position.y === Viewport.CANVAS_HEIGHT - Block.HEIGHT || 
+  //     s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)])){
+  //       return false;
+  // }
 
   return true;
 }
 
 //util function to map new array
-const updateOldGameCubes = (oldArray: GameCube[][], updateRow: number, updateCol: number, newValue: GameCube):GameCube[][] => {
+const updateOldGameCubesUtil = (oldArray: GameCube[][], updateRow: number, updateCol: number, newValue: GameCube):GameCube[][] => {
   // Update the array at the corresponding position according to the specified row and col. 
   // Finally, a new two-dimensional array will be returned.
   return oldArray.map((row, i) => {
@@ -130,116 +131,93 @@ const updateOldGameCubes = (oldArray: GameCube[][], updateRow: number, updateCol
   });
 }
 
-// util function to move
-const moveLeft = (s:State, amount:number): State => {
-  // left amount is negative number
-  if(s.currentGameCube?.position.x as number + amount >= 0){
-    print("1");
-    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)-1]){
-      print("3");
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
-            y:s.currentGameCube?.position.y
-          }
-        }
-      } as State;
-    } else{
-      print("4")
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:(s.currentGameCube?.position.x as number)+amount,
-            y:s.currentGameCube?.position.y
-          }
-        }
-      } as State;
-    }
-  } else {
-    print("2");
+// left failed
+const leftFailed = (block: GameBlock, s: State): State => {
+  const newCubes = block.cubes.map(cube => {
     return {
-      ...s,
-      currentGameCube:{
-        ...s.currentGameCube,
+      ...cube,
+      position:{
+        x:Math.floor((cube.position.x as number)/Block.WIDTH)*Block.WIDTH,
+        y:cube.position.y
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+// left success
+const leftSuccess = (block: GameBlock, s: State, amount: number):State => {
+  const newCubes = block.cubes.map(cube => {
+    return {
+      ...cube,
+      position:{
+        x:(cube.position.x as number)+amount,
+        y:cube.position.y
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+// move left canvas
+const moveLeftCanvas = (block: GameBlock, s: State):State => {
+  const newCubes = block.cubes.map(cube => {
+    if(cube.rotationID === 0 || cube.rotationID === 2){
+      return {
+        ...cube,
         position:{
           x:0,
-          y:s.currentGameCube?.position.y
+          y:cube.position.y
         }
       }
-    } as State;
-  }
+    } else {
+      return {
+        ...cube,
+        position:{
+          x:Block.WIDTH,
+          y:cube.position.y
+        }
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
 }
 
 // util function to move
-const moveRight = (s:State, amount:number): State => {
-  if(s.currentGameCube?.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH)){
-    if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)+1]){
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
-            y:s.currentGameCube?.position.y
-          }
-        }
-      } as State;
-    } else {
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:{
-            x:(s.currentGameCube?.position.x as number)+amount,
-            y:s.currentGameCube?.position.y
-          }
-        }
-      } as State;
-    }
-  } else {
-    return {
-      ...s,
-      currentGameCube:{
-        ...s.currentGameCube,
-        position:{
-          x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
-          y:s.currentGameCube?.position.y
-        }
-      }
-    } as State;
-  }
-
-
-  return s;
-}
-
-// // util function to move
-// const moveDown = (s:State, amount:number): State => {
-//   if(s.currentGameCube?.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT)){
-//     if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)]){
+// const moveLeft = (s:State, amount:number): State => {
+//   // left amount is negative number
+//   if(s.currentGameCube?.position.x as number + amount >= 0){
+//     if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)-1]){
 //       return {
 //         ...s,
 //         currentGameCube:{
 //           ...s.currentGameCube,
 //           position:{
-//             x:s.currentGameCube?.position.x,
-//             y:Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)*Block.HEIGHT
+//             x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
+//             y:s.currentGameCube?.position.y
 //           }
 //         }
 //       } as State;
-//     } else {
+//     } else{
 //       return {
 //         ...s,
 //         currentGameCube:{
 //           ...s.currentGameCube,
 //           position:{
-//             x:s.currentGameCube?.position.x,
-//             y:(s.currentGameCube?.position.y as number) + amount 
+//             x:(s.currentGameCube?.position.x as number)+amount,
+//             y:s.currentGameCube?.position.y
 //           }
 //         }
 //       } as State;
@@ -250,15 +228,180 @@ const moveRight = (s:State, amount:number): State => {
 //       currentGameCube:{
 //         ...s.currentGameCube,
 //         position:{
-//           x:s.currentGameCube?.position.x,
-//           y:(Viewport.CANVAS_HEIGHT - Block.HEIGHT)
+//           x:0,
+//           y:s.currentGameCube?.position.y
 //         }
 //       }
 //     } as State;
 //   }
-
-//   return s;
 // }
+
+// v:2.0
+// move right failed
+const rightFailed = (block: GameBlock, s: State): State => {
+  const newCubes = block.cubes.map(cube => {
+    return {
+      ...cube,
+      position:{
+        x:Math.floor((cube.position.x as number)/Block.WIDTH)*Block.WIDTH,
+        y:cube.position.y
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+// move right success
+const rightSuccess = (block: GameBlock, s: State, amount: number): State => {
+  const newCubes = block.cubes.map(cube => {
+    return {
+      ...cube,
+      position:{
+        x:(cube.position.x as number)+amount,
+        y:cube.position.y
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+// move right canvas
+const moveRightCanvas = (block: GameBlock, s: State): State => {
+  const newCubes = block.cubes.map(cube => {
+    if(cube.rotationID === 1 || cube.rotationID === 3){
+      return {
+        ...cube,
+        position:{
+          x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
+          y:cube.position.y
+        }
+      }
+    } else {
+      return {
+        ...cube,
+        position:{
+          x:(Viewport.CANVAS_WIDTH-Block.WIDTH)-Block.WIDTH,
+          y:cube.position.y
+        }
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+// util function to move
+// const moveRight = (s:State, amount:number): State => {
+//   if(s.currentGameCube?.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH)){
+//     if(s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)+1]){
+//       return {
+//         ...s,
+//         currentGameCube:{
+//           ...s.currentGameCube,
+//           position:{
+//             x:Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)*Block.WIDTH,
+//             y:s.currentGameCube?.position.y
+//           }
+//         }
+//       } as State;
+//     } else {
+//       return {
+//         ...s,
+//         currentGameCube:{
+//           ...s.currentGameCube,
+//           position:{
+//             x:(s.currentGameCube?.position.x as number)+amount,
+//             y:s.currentGameCube?.position.y
+//           }
+//         }
+//       } as State;
+//     }
+//   } else {
+//     return {
+//       ...s,
+//       currentGameCube:{
+//         ...s.currentGameCube,
+//         position:{
+//           x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
+//           y:s.currentGameCube?.position.y
+//         }
+//       }
+//     } as State;
+//   }
+// }
+
+const downFailed = (block: GameBlock, s: State): State => {
+  const newCubes = block.cubes.map(cube => {
+    return {
+      ...cube,
+      position:{
+        x:cube.position.x,
+        y:Math.floor((cube.position.y as number)/Block.HEIGHT)*Block.HEIGHT
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+const downSuccess = (block: GameBlock, s: State, amount: number): State => {
+  const newCubes = block.cubes.map(cube => {
+    return {
+      ...cube,
+      position:{
+        x:cube.position.x,
+        y:(cube.position.y as number) + amount
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
+const moveBottomCanvas = (block: GameBlock, s: State): State => {
+  const newCubes = block.cubes.map(cube => {
+    if(cube.rotationID === 2 || cube.rotationID === 3){
+      return {
+        ...cube,
+        position:{
+          x:cube.position.x,
+          y:Viewport.CANVAS_HEIGHT-Block.HEIGHT
+        }
+      }
+    } else {
+      return {
+        ...cube,
+        position:{
+          x:cube.position.x,
+          y:Viewport.CANVAS_HEIGHT-Block.HEIGHT-Block.HEIGHT
+        }
+      }
+    }
+  });
+  block.cubes = newCubes;
+  return {
+    ...s,
+    currentGameCube: block
+  } as State;
+}
+
 
 /** State processing */
 
@@ -271,6 +414,8 @@ type GameCube = Readonly<{
   color:string;
   shape:number; // TODO: Change to SHAPE type, when i finished the basic feature
   position:Position;
+  svgCoordinates:SvgCoordinate;
+  rotationID:number;
 }>;
 
 type ScoreAndDropRate = Readonly<{
@@ -282,7 +427,7 @@ type ScoreAndDropRate = Readonly<{
 
 type State = Readonly<{
   gameEnd: boolean;
-  currentGameCube?: (GameCube | null);
+  currentGameCube?: (GameBlock | null);
   oldGameCubes: (GameCube | null)[][]; // to record old blocks
   needToCreateCube?: (boolean | null);
   scoreAndDropRate: (ScoreAndDropRate | null);
@@ -290,11 +435,12 @@ type State = Readonly<{
 
 const initialState: State = {
   gameEnd: false,
+  needToCreateCube: true,
   scoreAndDropRate: {
     gameLevel: 1,
     gameScore: 0,
     gameHighScore: 0,
-    dropRate: 0
+    dropRate: 1
   } as ScoreAndDropRate,
   oldGameCubes : new Array(Constants.GRID_HEIGHT).fill(null).map(()=>new Array(Constants.GRID_WIDTH).fill(null))
   
@@ -306,6 +452,255 @@ type Keypress = Readonly<{
 }>;
 
 type ActionType = ((number | Keypress) | null);
+
+interface SvgCoordinate{
+  index_x: number;
+  index_y: number;
+}
+
+interface GameBlock{
+  cubes: GameCube[];
+  moveLeft(s: State, amount:number): State;
+  moveRight(s: State, amount:number): State;
+  moveDown(s: State, amount:number): State;
+  rotate(s: State): State;
+  checkContinueMove(s: State): boolean;
+  updatePositions(s: State): State;
+  updateOldGameCubes(s: State): State;
+}
+
+class SquareBlock implements GameBlock{
+  constructor(){
+    const colors = ["red", "green", "blue", "yellow"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const newBlock:GameCube = {
+      color: randomColor,
+      shape: SHAPES.SQUARE_BLOCK,
+      position: { //init position
+        x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
+        y: 0
+      },
+      svgCoordinates: {
+        index_x: 0,
+        index_y: Viewport.CANVAS_WIDTH / (Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1))
+      }, 
+      rotationID: 0
+    };
+    
+    this.cubes = [newBlock, {
+      ...newBlock,
+      position: {
+        x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)),
+        y: 0
+      },
+      svgCoordinates: {
+        index_x: 0,
+        index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2))
+      }, 
+      rotationID: 1
+    }, {
+      ...newBlock,
+      position: {
+        x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
+        y: newBlock.position.y + Block.HEIGHT
+      },
+      svgCoordinates: {
+        index_x: 1,
+        index_y: Viewport.CANVAS_WIDTH / (Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1))
+      },
+      rotationID: 2
+    }, {
+      ...newBlock,
+      position: {
+        x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)),
+        y: newBlock.position.y + Block.HEIGHT
+      },
+      svgCoordinates: {
+        index_x: 1,
+        index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2))
+      },
+      rotationID: 3
+    }];
+  }
+  
+  cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  moveLeft = (s: State, amount:number): State => {
+    if(this.cubes.every(cube => cube.position.x as number + amount >= 0)){
+      if (this.cubes.some(cube => (cube.rotationID === 0 || cube.rotationID === 2) && 
+        s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)-1])) {
+        return leftFailed(this, s);
+      } else {
+        return leftSuccess(this, s, amount);
+      }
+    } else {
+      return moveLeftCanvas(this, s);
+    }
+  }
+  moveRight = (s: State, amount:number): State => {
+    if(this.cubes.every(cube => cube.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH))){
+      if(this.cubes.some(cube => (cube.rotationID === 1 || cube.rotationID === 3) &&
+        s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)+1])){
+          return rightFailed(this, s);
+      } else {
+        return rightSuccess(this, s, amount);
+      }
+    } else {
+      return moveRightCanvas(this, s);
+    }
+  }
+  moveDown = (s: State, amount:number): State => {
+    if(this.cubes.every(cube => cube.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
+      if(this.cubes.some(cube => (cube.rotationID === 2 || cube.rotationID === 3) && 
+        s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)])){
+          return downFailed(this, s);
+        } else {
+          return downSuccess(this, s, amount);
+        }
+    } else {
+      return moveBottomCanvas(this, s);
+    }
+  }
+  rotate = (s: State): State => {
+    // Square block does not have ration change
+    return s;
+  }
+  checkContinueMove = (s: State): boolean => {
+    if(this.cubes.every(cube => cube.position.y as number + Block.HEIGHT*(s.scoreAndDropRate?.dropRate as number) <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
+      if(this.cubes.some(cube => (cube.rotationID === 2 || cube.rotationID === 3) && 
+        s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)])){
+          return false;
+        } else {
+          return true;
+        }
+    } else {
+      return false;
+    }
+  }
+  updatePositions = (s: State): State => {
+    return this.moveDown(s, Block.HEIGHT*(s.scoreAndDropRate?.dropRate as number));
+  }
+  updateOldGameCubes = (s: State): State => {
+    const newOldGameCubes = this.updateOldGameCubesRec(0, s.oldGameCubes as GameCube[][]);
+    return {
+      ...s,
+      oldGameCubes: newOldGameCubes
+    } as State;
+  }
+  // util function to update the old game cubes by recursive method
+  updateOldGameCubesRec = (index: number, oldGameCubes: GameCube[][]):GameCube[][]  => {
+    if(index >= this.cubes.length){
+      return oldGameCubes;
+    }
+    const oneCube = this.cubes.find(cube => cube.rotationID === index);
+    if(oneCube){
+      const oldGameCubesUpdated = updateOldGameCubesUtil(oldGameCubes, Math.floor((oneCube.position.y as number)/Block.HEIGHT), Math.floor((oneCube.position.x as number)/Block.WIDTH), oneCube);
+      return this.updateOldGameCubesRec(index+1, oldGameCubesUpdated);
+    }
+    return this.updateOldGameCubesRec(index+1, oldGameCubes);
+  }
+}
+
+class RaisedBlock implements GameBlock{
+  constructor(){}
+  cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  moveLeft = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveRight = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveDown = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  rotate = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  checkContinueMove = (s: State): boolean => {
+    // TODO: implement this method
+    return true;
+  }
+  updatePositions = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  updateOldGameCubes = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+}
+
+class LightningBlock implements GameBlock{
+  constructor(){}
+  cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  moveLeft = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveRight = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveDown = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  rotate = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  checkContinueMove = (s: State): boolean => {
+    // TODO: implement this method
+    return true;
+  }
+  updatePositions = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  updateOldGameCubes = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+}
+
+class LineBlock implements GameBlock{
+  constructor(){}
+  cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  moveLeft = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveRight = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  moveDown = (s: State, amount:number): State => {
+    // TODO: implement this method
+    return s;
+  }
+  rotate = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  checkContinueMove = (s: State): boolean => {
+    // TODO: implement this method
+    return true;
+  }
+  updatePositions = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+  updateOldGameCubes = (s: State): State => {
+    // TODO: implement this method
+    return s;
+  }
+}
+
+
+
 /**
  * Updates the state by proceeding with one time step.
  *
@@ -322,125 +717,179 @@ const tick = (s: State, action: ActionType = null):State => {
     } as State;
   }
 
-  // If the current block can continue to function
-  if(checkContinueMove(s)){
+  if(!s.currentGameCube || s.needToCreateCube){
+    return {
+      ...s,
+      currentGameCube: createNewShapeFactory(),
+      needToCreateCube: false
+    } as State;
+  }
+
+  // if(needLineRemove(s.oldGameCubes as GameCube[][])){
+
+  // }
+
+  if(s.currentGameCube.checkContinueMove(s)){
     if(action !== null){
       if((action as Keypress).axis === 'x' && (action as Keypress).amount < 0){
-        const newState = moveLeft(s,(action as Keypress).amount);
+        const newState = s.currentGameCube.moveLeft(s, (action as Keypress).amount);
         if(needLineRemove(newState.oldGameCubes as GameCube[][])){
           const updateState = lineRemoved(newState);
-          const nextPosition = updatePosition(newState, updateState);
           return {
             ...newState,
-            currentGameCube:{
-              ...newState.currentGameCube,
-              position:nextPosition
-            },
-            needToCreateCube: false,
             scoreAndDropRate: updateState
           } as State;
-        } else{
+        } else {
           return newState;
         }
       } else if((action as Keypress).axis === 'x' && (action as Keypress).amount > 0){
-        const newState = moveRight(s,(action as Keypress).amount);
+        const newState = s.currentGameCube.moveRight(s, (action as Keypress).amount);
         if(needLineRemove(newState.oldGameCubes as GameCube[][])){
           const updateState = lineRemoved(newState);
-          const nextPosition = updatePosition(newState, updateState);
           return {
             ...newState,
-            currentGameCube:{
-              ...newState.currentGameCube,
-              position:nextPosition
-            },
-            needToCreateCube: false,
             scoreAndDropRate: updateState
           } as State;
-        } else{
+        } else {
           return newState;
         }
       } else if((action as Keypress).axis === 'y' && (action as Keypress).amount > 0){
-        return tick(s);
-        // const newState = moveDown(s,(action as Keypress).amount);
-        // if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-        //   const updateState = lineRemoved(newState);
-        //   const nextPosition = updatePosition(newState, updateState);
-        //   return {
-        //     ...newState,
-        //     currentGameCube:{
-        //       ...newState.currentGameCube,
-        //       position:nextPosition
-        //     },
-        //     needToCreateCube: false,
-        //     scoreAndDropRate: updateState
-        //   } as State;
-        // } else{
-        //   return newState;
-        // }
+        const newState = s.currentGameCube.moveDown(s, (action as Keypress).amount);
+        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+          const updateState = lineRemoved(newState);
+          return {
+            ...newState,
+            scoreAndDropRate: updateState
+          } as State;
+        } else {
+          return newState;
+        }
       }
-    }
-
-    // If there is a row that needs to be cleared (scores can be obtained)
-    if(needLineRemove(s.oldGameCubes as GameCube[][])){
-      // line remove
-      const updateScoreAndDropRate = lineRemoved(s);
-      const nextPosition = updatePosition(s, updateScoreAndDropRate); // update the least position of current block
-      // return the least state
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:nextPosition
-        },
-        needToCreateCube: false,
-        scoreAndDropRate: updateScoreAndDropRate
-      } as State;
     } else {
-      // do not get points, continue to the next step
-      const nextPosition = updatePosition(s, s.scoreAndDropRate as ScoreAndDropRate);
-      // return the least state
-      return {
-        ...s,
-        currentGameCube:{
-          ...s.currentGameCube,
-          position:nextPosition
-        },
-        needToCreateCube: false
-      } as State;
+      print("sdsad")
+      const newState = s.currentGameCube.updatePositions(s);
+        if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+          const updateState = lineRemoved(newState);
+          return {
+            ...newState,
+            scoreAndDropRate: updateState
+          } as State;
+        } else {
+          return newState;
+        }
     }
-  } else{
-    // can't move anymore
-    // If there is no running block, create it.
-    if(!s.currentGameCube){
-      return {
-        ...s,
-        currentGameCube: createNewShapeFactory(),
-        needToCreateCube: true
-      } as State;
-    } else if (needLineRemove(s.oldGameCubes as GameCube[][])){
-      // The cube can't continue to move, but gamer can clear a row and get points
-      const updateScoreAndDropRate = lineRemoved(s);
-      // update the oldGameCubes array
-      const mapOldGameCubes = updateOldGameCubes(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
-      return {
-        ...s,
-        currentGameCube: createNewShapeFactory(),
-        oldGameCubes: mapOldGameCubes,
-        needToCreateCube: true,
-        scoreAndDropRate: updateScoreAndDropRate
-      } as State;
-    } else {
-      // The cube can't continue to move and update the oldGameCubes array
-      const mapOldGameCubes = updateOldGameCubes(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
-      return {
-        ...s,
-        currentGameCube: createNewShapeFactory(),
-        oldGameCubes: mapOldGameCubes,
-        needToCreateCube: true
-      } as State;
-    }
-    
+  } else {
+    const storedOldState = s.currentGameCube.updateOldGameCubes(s);
+    return {
+      ...storedOldState,
+      currentGameCube: createNewShapeFactory()
+    } as State;
   }
+
+  // // If the current block can continue to function
+  // if(checkContinueMove(s)){
+  //   if(action !== null){
+  //     if((action as Keypress).axis === 'x' && (action as Keypress).amount < 0){
+  //       const newState = moveLeft(s,(action as Keypress).amount);
+  //       if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+  //         const updateState = lineRemoved(newState);
+  //         const nextPosition = updatePosition(newState, updateState);
+  //         return {
+  //           ...newState,
+  //           currentGameCube:{
+  //             ...newState.currentGameCube,
+  //             position:nextPosition
+  //           },
+  //           needToCreateCube: false,
+  //           scoreAndDropRate: updateState
+  //         } as State;
+  //       } else{
+  //         return newState;
+  //       }
+  //     } else if((action as Keypress).axis === 'x' && (action as Keypress).amount > 0){
+  //       const newState = moveRight(s,(action as Keypress).amount);
+  //       if(needLineRemove(newState.oldGameCubes as GameCube[][])){
+  //         const updateState = lineRemoved(newState);
+  //         const nextPosition = updatePosition(newState, updateState);
+  //         return {
+  //           ...newState,
+  //           currentGameCube:{
+  //             ...newState.currentGameCube,
+  //             position:nextPosition
+  //           },
+  //           needToCreateCube: false,
+  //           scoreAndDropRate: updateState
+  //         } as State;
+  //       } else{
+  //         return newState;
+  //       }
+  //     } else if((action as Keypress).axis === 'y' && (action as Keypress).amount > 0){
+  //       return tick(s);
+  //     }
+  //   }
+
+  //   // If there is a row that needs to be cleared (scores can be obtained)
+  //   if(needLineRemove(s.oldGameCubes as GameCube[][])){
+  //     // line remove
+  //     const updateScoreAndDropRate = lineRemoved(s);
+  //     const nextPosition = updatePosition(s, updateScoreAndDropRate); // update the least position of current block
+  //     // return the least state
+  //     return {
+  //       ...s,
+  //       currentGameCube:{
+  //         ...s.currentGameCube,
+  //         position:nextPosition
+  //       },
+  //       needToCreateCube: false,
+  //       scoreAndDropRate: updateScoreAndDropRate
+  //     } as State;
+  //   } else {
+  //     // do not get points, continue to the next step
+  //     const nextPosition = updatePosition(s, s.scoreAndDropRate as ScoreAndDropRate);
+  //     // return the least state
+  //     return {
+  //       ...s,
+  //       currentGameCube:{
+  //         ...s.currentGameCube,
+  //         position:nextPosition
+  //       },
+  //       needToCreateCube: false
+  //     } as State;
+  //   }
+  // } else{
+  //   // can't move anymore
+  //   // If there is no running block, create it.
+  //   if(!s.currentGameCube){
+  //     return {
+  //       ...s,
+  //       currentGameCube: createNewShapeFactory(),
+  //       needToCreateCube: true
+  //     } as State;
+  //   } else if (needLineRemove(s.oldGameCubes as GameCube[][])){
+  //     // The cube can't continue to move, but gamer can clear a row and get points
+  //     const updateScoreAndDropRate = lineRemoved(s);
+  //     // update the oldGameCubes array
+  //     const mapOldGameCubes = updateOldGameCubesUtil(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
+  //     return {
+  //       ...s,
+  //       currentGameCube: createNewShapeFactory(),
+  //       oldGameCubes: mapOldGameCubes,
+  //       needToCreateCube: true,
+  //       scoreAndDropRate: updateScoreAndDropRate
+  //     } as State;
+  //   } else {
+  //     // The cube can't continue to move and update the oldGameCubes array
+  //     const mapOldGameCubes = updateOldGameCubesUtil(s.oldGameCubes as GameCube[][], Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT), Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH), {...s.currentGameCube});
+  //     return {
+  //       ...s,
+  //       currentGameCube: createNewShapeFactory(),
+  //       oldGameCubes: mapOldGameCubes,
+  //       needToCreateCube: true
+  //     } as State;
+  //   }
+    
+  // }
+  return s;
 
 };
 
@@ -573,7 +1022,8 @@ export function main() {
 
     // render current block
     if(s.currentGameCube){
-      renderChildToSvg(s.currentGameCube);
+      s.currentGameCube.cubes.forEach(cube => renderChildToSvg(cube));
+      // renderChildToSvg(s.currentGameCube);
     }
 
     // render other blocks
