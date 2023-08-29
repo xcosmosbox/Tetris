@@ -99,33 +99,7 @@ export const leftSuccess = (block: GameBlock, s: State, amount: number):State =>
     } as State;
 }
 
-// move left canvas
-export const moveLeftCanvas = (block: GameBlock, s: State):State => {
-    const newCubes = block.cubes.map(cube => {
-        if(cube.rotationID === 0 || cube.rotationID === 2){
-        return {
-            ...cube,
-            position:{
-            x:0,
-            y:cube.position.y
-            }
-        }
-        } else {
-        return {
-            ...cube,
-            position:{
-            x:Block.WIDTH,
-            y:cube.position.y
-            }
-        }
-        }
-    });
-    block.cubes = newCubes;
-    return {
-        ...s,
-        currentGameCube: block
-    } as State;
-}
+
 
 // v:2.0
 // move right failed
@@ -164,33 +138,6 @@ export const rightSuccess = (block: GameBlock, s: State, amount: number): State 
     } as State;
 }
 
-// move right canvas
-export const moveRightCanvas = (block: GameBlock, s: State): State => {
-    const newCubes = block.cubes.map(cube => {
-        if(cube.rotationID === 1 || cube.rotationID === 3){
-        return {
-            ...cube,
-            position:{
-            x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
-            y:cube.position.y
-            }
-        }
-        } else {
-        return {
-            ...cube,
-            position:{
-            x:(Viewport.CANVAS_WIDTH-Block.WIDTH)-Block.WIDTH,
-            y:cube.position.y
-            }
-        }
-        }
-    });
-    block.cubes = newCubes;
-    return {
-        ...s,
-        currentGameCube: block
-    } as State;
-}
 
 export const downFailed = (block: GameBlock, s: State): State => {
     const newCubes = block.cubes.map(cube => {
@@ -226,29 +173,29 @@ export const downSuccess = (block: GameBlock, s: State, amount: number): State =
     } as State;
 }
 
-export const moveBottomCanvas = (block: GameBlock, s: State): State => {
-    const newCubes = block.cubes.map(cube => {
-        if(cube.rotationID === 2 || cube.rotationID === 3){
-        return {
-            ...cube,
-            position:{
-            x:cube.position.x,
-            y:Viewport.CANVAS_HEIGHT-Block.HEIGHT
-            }
-        }
-        } else {
-        return {
-            ...cube,
-            position:{
-            x:cube.position.x,
-            y:Viewport.CANVAS_HEIGHT-Block.HEIGHT-Block.HEIGHT
-            }
-        }
-        }
-    });
-    block.cubes = newCubes;
-    return {
-        ...s,
-        currentGameCube: block
-    } as State;
-}
+// export const moveBottomCanvas = (block: GameBlock, s: State): State => {
+//     const newCubes = block.cubes.map(cube => {
+//         if(cube.rotationID === 2 || cube.rotationID === 3){
+//         return {
+//             ...cube,
+//             position:{
+//             x:cube.position.x,
+//             y:Viewport.CANVAS_HEIGHT-Block.HEIGHT
+//             }
+//         }
+//         } else {
+//         return {
+//             ...cube,
+//             position:{
+//             x:cube.position.x,
+//             y:Viewport.CANVAS_HEIGHT-Block.HEIGHT-Block.HEIGHT
+//             }
+//         }
+//         }
+//     });
+//     block.cubes = newCubes;
+//     return {
+//         ...s,
+//         currentGameCube: block
+//     } as State;
+// }

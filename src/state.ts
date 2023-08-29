@@ -1,5 +1,5 @@
 import { Block, Constants, SHAPES, Viewport } from "./main";
-import { leftFailed, leftSuccess, moveLeftCanvas, rightFailed, rightSuccess, moveRightCanvas, downFailed, downSuccess, moveBottomCanvas, updateOldGameCubesUtil, createNewShapeFactory, needLineRemove, lineRemoved } from "./utils";
+import { leftFailed, leftSuccess, rightFailed, rightSuccess, downFailed, downSuccess, updateOldGameCubesUtil, createNewShapeFactory, needLineRemove, lineRemoved } from "./utils";
 
 
 export class SquareBlock implements GameBlock{
@@ -66,8 +66,31 @@ export class SquareBlock implements GameBlock{
           return leftSuccess(this, s, amount);
         }
       } else {
-        return moveLeftCanvas(this, s);
-      }
+            const newCubes = this.cubes.map(cube => {
+                if(cube.rotationID === 0 || cube.rotationID === 2){
+                    return {
+                        ...cube,
+                        position:{
+                            x:0,
+                            y:cube.position.y
+                        }
+                    }
+                } else {
+                    return {
+                        ...cube,
+                        position:{
+                            x:Block.WIDTH,
+                            y:cube.position.y
+                        }
+                    }
+                }
+            });
+            this.cubes = newCubes;
+            return { 
+                ...s,
+                currentGameCube: this
+            } as State;
+        }
     }
     moveRight = (s: State, amount:number): State => {
       if(this.cubes.every(cube => cube.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH))){
@@ -78,8 +101,31 @@ export class SquareBlock implements GameBlock{
           return rightSuccess(this, s, amount);
         }
       } else {
-        return moveRightCanvas(this, s);
-      }
+            const newCubes = this.cubes.map(cube => {
+                if(cube.rotationID === 1 || cube.rotationID === 3){
+                    return {
+                        ...cube,
+                        position:{
+                            x:(Viewport.CANVAS_WIDTH-Block.WIDTH),
+                            y:cube.position.y
+                        }
+                    }
+                } else {
+                    return {
+                        ...cube,
+                        position:{
+                            x:(Viewport.CANVAS_WIDTH-Block.WIDTH)-Block.WIDTH,
+                            y:cube.position.y
+                        }
+                    }
+                }
+            });
+            this.cubes = newCubes;
+            return {
+                ...s,
+                currentGameCube: this
+            } as State;
+        }
     }
     moveDown = (s: State, amount:number): State => {
       if(this.cubes.every(cube => cube.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
@@ -90,8 +136,31 @@ export class SquareBlock implements GameBlock{
             return downSuccess(this, s, amount);
           }
       } else {
-        return moveBottomCanvas(this, s);
-      }
+            const newCubes = this.cubes.map(cube => {
+                if(cube.rotationID === 2 || cube.rotationID === 3){
+                    return {
+                        ...cube,
+                        position:{
+                            x:cube.position.x,
+                            y:Viewport.CANVAS_HEIGHT-Block.HEIGHT
+                        }
+                    }
+                } else {
+                    return {
+                        ...cube,
+                        position:{
+                            x:cube.position.x,
+                            y:Viewport.CANVAS_HEIGHT-Block.HEIGHT-Block.HEIGHT
+                        }
+                    }
+                }
+            });
+            this.cubes = newCubes;
+            return {
+                ...s,
+                currentGameCube: this
+            } as State;
+        }
     }
     rotate = (s: State): State => {
       // Square block does not have ration change
