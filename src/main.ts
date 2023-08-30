@@ -184,6 +184,21 @@ export function main() {
     }
   }
 
+  const renderChildToPreview = (block: GameCube | null) => {
+    if(block){
+      // Add a block to the preview canvas
+      const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
+        height: `${Block.HEIGHT}`,
+        width: `${Block.WIDTH}`,
+        x: `${block.position.x}`,
+        y: `${block.position.y}`,
+        style: "fill: "+`${block.color}`,
+        class: "preGameBlock"
+      });
+      preview.appendChild(cubePreview);
+    }
+  }
+
   /**
    * Renders the current state to the canvas.
    *
@@ -205,6 +220,15 @@ export function main() {
     // refresh the svg view
     const blocks = svg.querySelectorAll('.gameBlock');
     blocks.forEach(block => svg.removeChild(block));
+
+    // refresh the preview
+    const preBlocks = preview.querySelectorAll('.preGameBlock');
+    preBlocks.forEach(block => preview.removeChild(block));
+
+    // render preview blocks
+    if(s.nextBlock){
+      s.nextBlock.cubes.forEach(cube => renderChildToPreview(cube));
+    }
 
     // render current block
     if(s.currentGameCube){

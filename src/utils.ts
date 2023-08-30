@@ -5,15 +5,16 @@
 import { Block, Viewport } from "./main";
 import { RaisedBlock, SquareBlock } from "./state";
 
+const randomShape = ():GameBlock => {
+    const blockContainer = [SquareBlock, RaisedBlock];
+    const randomIndex = Math.floor(Math.random()*blockContainer.length);
+    return new blockContainer[randomIndex]();
+}
+
 // util function to simulate factory method to create the attribute for new block
-export const createNewShapeFactory = ():GameBlock =>{
-    // const shape = ["Square"];
-    // const randomShape = shape[Math.floor(Math.random() * shape.length)];
-    // if(randomShape === )
-  
-    // return new SquareBlock();
-    return new RaisedBlock();
-  }
+export const createNewShapeFactory = ():{currentBlock:GameBlock, nextBlock:GameBlock} =>{
+    return {currentBlock:randomShape(), nextBlock:randomShape()};
+}
 
 // util function to check line whether is need to remove
 export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {

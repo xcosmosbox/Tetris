@@ -21,6 +21,7 @@ type ScoreAndDropRate = Readonly<{
 type State = Readonly<{
     gameEnd: boolean;
     currentGameCube?: (GameBlock | null);
+    nextBlock?: (GameBlock | null);
     oldGameCubes: (GameCube | null)[][]; // to record old blocks
     needToCreateCube?: (boolean | null);
     scoreAndDropRate: (ScoreAndDropRate | null);

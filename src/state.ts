@@ -416,8 +416,6 @@ export class SquareBlock implements GameBlock{
             }
         } else if(this.rotationLevel === 3){
             const oneCube = this.cubes.find(cube => cube.rotationID === 2);
-            console.log(oneCube)
-
             if(oneCube && oneCube.position.x !== 0 && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)-1]){
                 // rotate success
                 const newCubes = this.cubes.map( cube => {
@@ -578,9 +576,11 @@ export const tick = (s: State, action: ActionType = null):State => {
     }
 
     if(!s.currentGameCube || s.needToCreateCube){
+        const {currentBlock, nextBlock} = createNewShapeFactory();
         return {
             ...s,
-            currentGameCube: createNewShapeFactory(),
+            currentGameCube: s.nextBlock || currentBlock,
+            nextBlock: nextBlock,
             needToCreateCube: false
         } as State;
     }
@@ -650,9 +650,17 @@ export const tick = (s: State, action: ActionType = null):State => {
         }
     } else {
         const storedOldState = s.currentGameCube.updateOldGameCubes(s);
+        const {currentBlock, nextBlock} = createNewShapeFactory();
+        if(storedOldState.oldGameCubes[0].some(cube => cube !== null)){
+            return {
+                ...storedOldState,
+                gameEnd: true
+            } as State;
+        }
         return {
             ...storedOldState,
-            currentGameCube: createNewShapeFactory()
+            currentGameCube: s.nextBlock || currentBlock,
+            nextBlock: nextBlock,
         } as State;
     }
     return s;
