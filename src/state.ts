@@ -261,9 +261,9 @@ export class SquareBlock implements GameBlock{
     moveLeft = (s: State, amount:number): State => {
         if(this.cubes.every(cube => cube.position.x as number + amount >= 0)){
             if(this.cubes.some(cube => {
-                return ( (this.rotationLevel === 0 && cube.rotationID === 1) || 
-                        (this.rotationLevel === 1 && cube.rotationID === 0) || 
-                        (this.rotationLevel === 2 && cube.rotationID === 3) || 
+                return ( (this.rotationLevel === 0 && (cube.rotationID === 1 || cube.rotationID === 0)) || 
+                        (this.rotationLevel === 1 && (cube.rotationID === 0 || cube.rotationID === 3 || cube.rotationID === 1)) || 
+                        (this.rotationLevel === 2 && (cube.rotationID === 3 || cube.rotationID === 0)) || 
                         (this.rotationLevel === 3 && (cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
                         ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)-1] );
             })){
@@ -278,9 +278,9 @@ export class SquareBlock implements GameBlock{
     moveRight = (s: State, amount:number): State => {
         if(this.cubes.every(cube => cube.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH))){
             if(this.cubes.some(cube => {
-                return ( (this.rotationLevel === 0 && cube.rotationID === 3) || 
-                        (this.rotationLevel === 2 && cube.rotationID === 1) || 
-                        (this.rotationLevel === 3 && cube.rotationID === 0) || 
+                return ( (this.rotationLevel === 0 && (cube.rotationID === 3 || cube.rotationID === 0)) || 
+                        (this.rotationLevel === 2 && (cube.rotationID === 1 || cube.rotationID === 0) ) || 
+                        (this.rotationLevel === 3 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 3 )) || 
                         (this.rotationLevel === 1 && (cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
                         ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)+1] );
             })){
@@ -296,9 +296,9 @@ export class SquareBlock implements GameBlock{
     moveDown = (s: State, amount:number): State => {
         if(this.cubes.every(cube => cube.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
             if(this.cubes.some(cube => {
-                return ( (this.rotationLevel === 1 && cube.rotationID === 1) || 
-                        (this.rotationLevel === 2 && cube.rotationID === 0) || 
-                        (this.rotationLevel === 3 && cube.rotationID === 3) || 
+                return ( (this.rotationLevel === 1 && (cube.rotationID === 1 || cube.rotationID === 0)) || 
+                        (this.rotationLevel === 2 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 3)) || 
+                        (this.rotationLevel === 3 && (cube.rotationID === 3 || cube.rotationID === 0)) || 
                         (this.rotationLevel === 0 && (cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
                         ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)] );
             })){
@@ -454,9 +454,9 @@ export class SquareBlock implements GameBlock{
     checkContinueMove = (s: State): boolean => {
         if(this.cubes.every(cube => cube.position.y as number + Block.HEIGHT*(s.scoreAndDropRate?.dropRate as number) <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
             if(this.cubes.some(cube => {
-                return ( (this.rotationLevel === 1 && cube.rotationID === 1) || 
-                        (this.rotationLevel === 2 && cube.rotationID === 0) || 
-                        (this.rotationLevel === 3 && cube.rotationID === 3) || 
+                return ( (this.rotationLevel === 1 && (cube.rotationID === 1 || cube.rotationID === 0)) || 
+                        (this.rotationLevel === 2 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 3)) || 
+                        (this.rotationLevel === 3 && (cube.rotationID === 3 || cube.rotationID === 0)) || 
                         (this.rotationLevel === 0 && (cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
                         ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)] );
             })){
