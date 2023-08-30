@@ -27,7 +27,7 @@ type State = Readonly<{
 }>;
 
 type Keypress = Readonly<{
-    axis: 'x' | 'y',
+    axis: 'x' | 'y' | 'z',
     amount: number
 }>;
 
