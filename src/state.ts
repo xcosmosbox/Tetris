@@ -350,7 +350,7 @@ export class SquareBlock implements GameBlock{
             }
         } else if(this.rotationLevel === 1){
             const oneCube = this.cubes.find(cube => cube.rotationID === 2);
-            if(oneCube && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)+1]){
+            if(oneCube && oneCube.position.x !== Viewport.CANVAS_WIDTH-Block.WIDTH && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)+1]){
                 // rotate success
                 const newCubes = this.cubes.map( cube => {
                     if(cube.rotationID === 0){
@@ -383,7 +383,6 @@ export class SquareBlock implements GameBlock{
             }
         } else if(this.rotationLevel === 2){
             const oneCube = this.cubes.find(cube => cube.rotationID === 2);
-            console.log(oneCube)
             if(oneCube && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)-1][Math.floor(oneCube.position.x as number / Block.WIDTH)]){
                 // rotate success
                 const newCubes = this.cubes.map( cube => {
@@ -417,7 +416,9 @@ export class SquareBlock implements GameBlock{
             }
         } else if(this.rotationLevel === 3){
             const oneCube = this.cubes.find(cube => cube.rotationID === 2);
-            if(oneCube && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)-1]){
+            console.log(oneCube)
+
+            if(oneCube && oneCube.position.x !== 0 && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)-1]){
                 // rotate success
                 const newCubes = this.cubes.map( cube => {
                     if(cube.rotationID === 0){
