@@ -542,7 +542,7 @@ export class LightningBlock implements GameBlock{
                 index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)+1)
             },
             rotationID: 3
-        }]
+        }];
     }
     cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
     rotationLevel: number = 0;
@@ -796,36 +796,236 @@ export class LightningBlock implements GameBlock{
 }
 
 export class LineBlock implements GameBlock{
-    constructor(){}
+    constructor(){
+        const colors = ["red", "green", "blue", "yellow"];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        const newBlock:GameCube = {
+            color: randomColor,
+            shape: SHAPES.LINE_BLOCK,
+            position: { //init position
+                x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
+                y: 0
+            },
+            svgCoordinates: {
+                index_x: 0,
+                index_y: Viewport.CANVAS_WIDTH / (Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2))
+            }, 
+            rotationID: 0
+        };
+
+        this.cubes = [newBlock, {
+            ...newBlock,
+            position:{
+                x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)-1),
+                y: newBlock.position.y
+            },
+            svgCoordinates: {
+                index_x: 0,
+                index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)-1)
+            },
+            rotationID: 1
+        }, {
+            ...newBlock,
+            position:{
+                x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)),
+                y: newBlock.position.y
+            },
+            svgCoordinates: {
+                index_x: 1,
+                index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2))
+            }, 
+            rotationID: 2
+        }, {
+            ...newBlock,
+            position:{
+                x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)+1),
+                y: newBlock.position.y
+            },
+            svgCoordinates:{
+                index_x: 1,
+                index_y: Viewport.CANVAS_WIDTH / Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2)+1)
+            },
+            rotationID: 3
+        }]
+    }
     cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+    rotationLevel: number = 0;
     moveLeft = (s: State, amount:number): State => {
-        // TODO: implement this method
-        return s;
+        if(this.cubes.every(cube => cube.position.x as number + amount >= 0)){
+            if(this.cubes.some(cube => {
+                return ( (this.rotationLevel === 0 && cube.rotationID === 0) || 
+                        (this.rotationLevel === 1 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
+                        ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)-1] );
+            })){
+                return  leftFailed(this, s);
+            } else {
+                return leftSuccess(this, s, amount);
+            }
+        } else {
+            return s;
+        }
     }
     moveRight = (s: State, amount:number): State => {
-        // TODO: implement this method
-        return s;
+        if(this.cubes.every(cube => cube.position.x as number + amount <= (Viewport.CANVAS_WIDTH-Block.WIDTH))){
+            if(this.cubes.some(cube => {
+                return ( (this.rotationLevel === 0 && cube.rotationID === 3) || 
+                        (this.rotationLevel === 1 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
+                        ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)][Math.floor(cube.position.x as number / Block.WIDTH)+1] );
+            })){
+                return rightFailed(this, s);
+            } else {
+                return rightSuccess(this, s, amount);
+            }
+        } else {
+            return s;
+        }
     }
     moveDown = (s: State, amount:number): State => {
-        // TODO: implement this method
-        return s;
+        if(this.cubes.every(cube => cube.position.y as number + amount <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
+            if(this.cubes.some(cube => {
+                return ( (this.rotationLevel === 1 && cube.rotationID === 3) || 
+                        (this.rotationLevel === 0 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) ) && 
+                        ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)] );
+            })){
+                return downFailed(this, s);
+            } else {
+                return downSuccess(this, s, amount);
+            }
+        } else {
+            return s;
+        }
     }
     rotate = (s: State): State => {
-        // TODO: implement this method
+        const positionMap: Record<number, Position> = this.cubes.reduce(
+            (acc, cube) => ({...acc, [cube.rotationID]:cube.position})
+        , {});
+        if(this.rotationLevel === 0){
+            const oneCube = this.cubes.find(cube => cube.rotationID === 2);
+            if(oneCube && oneCube.position.y < Viewport.CANVAS_HEIGHT - Block.HEIGHT && oneCube.position.y >= 2*Block.HEIGHT 
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)-1][Math.floor(oneCube.position.x as number / Block.WIDTH)] 
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)-2][Math.floor(oneCube.position.x as number / Block.WIDTH)]
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)+1][Math.floor(oneCube.position.x as number / Block.WIDTH)]){
+                // rotate success
+                const newCubes = this.cubes.map( cube => {
+                    if(cube.rotationID === 0){
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x,
+                                y: positionMap[2].y - 2*Block.HEIGHT
+                            }
+                        } as GameCube;
+                    } else if(cube.rotationID === 1){
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x,
+                                y: positionMap[2].y - Block.HEIGHT
+                            }
+                        } as GameCube;
+                    } else if(cube.rotationID === 2){
+                        return cube;
+                    } else{
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x,
+                                y: positionMap[2].y + Block.HEIGHT
+                            }
+                        } as GameCube;
+                    }
+                });
+                this.cubes = newCubes;
+                this.rotationLevel = 1;
+            } else {
+                // rotate failed
+                return s;
+            }
+        } else if(this.rotationLevel === 1){
+            const oneCube = this.cubes.find(cube => cube.rotationID === 2);
+            if(oneCube && oneCube.position.x >= 2*Block.WIDTH && oneCube.position.x < Viewport.CANVAS_WIDTH-Block.WIDTH
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)-2] 
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)-1]
+                && !s.oldGameCubes[Math.floor(oneCube.position.y as number / Block.HEIGHT)][Math.floor(oneCube.position.x as number / Block.WIDTH)+1]){
+                // rotate success
+                const newCubes = this.cubes.map( cube => {
+                    if(cube.rotationID === 0){
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x - 2*Block.WIDTH,
+                                y: positionMap[2].y
+                            }
+                        } as GameCube;
+                    } else if(cube.rotationID === 1){
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x - Block.WIDTH,
+                                y: positionMap[2].y
+                            }
+                        } as GameCube;
+                    } else if(cube.rotationID === 2){
+                        return cube;
+                    } else{
+                        return {
+                            ...cube,
+                            position: {
+                                x: positionMap[2].x + Block.WIDTH,
+                                y: positionMap[2].y
+                            }
+                        } as GameCube;
+                    }
+                });
+                this.cubes = newCubes;
+                this.rotationLevel = 0;
+            } else {
+                // rotate failed
+                return s;
+            }
+        }
+
+
         return s;
     }
     checkContinueMove = (s: State): boolean => {
-        // TODO: implement this method
-        return true;
+        if(this.cubes.every(cube => cube.position.y as number + Block.HEIGHT*(s.scoreAndDropRate?.dropRate as number) <= (Viewport.CANVAS_HEIGHT-Block.HEIGHT))){
+            if(this.cubes.some(cube => {
+                return ( (this.rotationLevel === 1 && cube.rotationID === 3) || 
+                        (this.rotationLevel === 0 && (cube.rotationID === 0 || cube.rotationID === 1 || cube.rotationID === 2 || cube.rotationID === 3)) )  && 
+                        ( s.oldGameCubes[Math.floor(cube.position.y as number / Block.HEIGHT)+1][Math.floor(cube.position.x as number / Block.WIDTH)] );
+            })){
+                return false;
+              } else {
+                return true;
+              }
+        } else {
+            return false;
+        }
     }
     updatePositions = (s: State): State => {
-        // TODO: implement this method
-        return s;
+        return this.moveDown(s, Block.HEIGHT*(s.scoreAndDropRate?.dropRate as number));
     }
     updateOldGameCubes = (s: State): State => {
-        // TODO: implement this method
-        return s;
+        const newOldGameCubes = this.updateOldGameCubesRec(0, s.oldGameCubes as GameCube[][]);
+        return {
+            ...s,
+            oldGameCubes: newOldGameCubes
+        } as State;
     }
+    // util function to update the old game cubes by recursive method
+    updateOldGameCubesRec = (index: number, oldGameCubes: GameCube[][]):GameCube[][]  => {
+        if(index >= this.cubes.length){
+          return oldGameCubes;
+        }
+        const oneCube = this.cubes.find(cube => cube.rotationID === index);
+        if(oneCube){
+          const oldGameCubesUpdated = updateOldGameCubesUtil(oldGameCubes, Math.floor((oneCube.position.y as number)/Block.HEIGHT), Math.floor((oneCube.position.x as number)/Block.WIDTH), oneCube);
+          return this.updateOldGameCubesRec(index+1, oldGameCubesUpdated);
+        }
+        return this.updateOldGameCubesRec(index+1, oldGameCubes);
+    }
+
 }
 
 

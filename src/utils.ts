@@ -3,10 +3,10 @@
 /** Utility functions */
 
 import { Block, Viewport } from "./main";
-import { LightningBlock, RaisedBlock, SquareBlock } from "./state";
+import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
 
 const randomShape = ():GameBlock => {
-    const blockContainer = [SquareBlock, RaisedBlock, LightningBlock];
+    const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
     const randomIndex = Math.floor(Math.random()*blockContainer.length);
     return new blockContainer[randomIndex]();
 }
