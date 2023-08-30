@@ -59,7 +59,7 @@ export const SHAPES = {
 
 /** User input */
 
-type Key = "KeyS" | "KeyA" | "KeyD";
+type Key = "KeyS" | "KeyA" | "KeyD" | "KeyW";
 
 type Event = "keydown" | "keyup" | "keypress";
 
@@ -158,6 +158,7 @@ export function main() {
   const left$ = fromKey("KeyA", {axis:'x', amount: -Block.WIDTH});
   const right$ = fromKey("KeyD", {axis:'x', amount: Block.WIDTH});
   const down$ = fromKey("KeyS", {axis: 'y', amount: Block.HEIGHT});
+  const rotate$ = fromKey("KeyW", { axis: 'z', amount: 0});
 
   /** Observables */
 
@@ -261,7 +262,7 @@ export function main() {
   };
 
 
-  const source$ = merge(tick$, left$, right$, down$)
+  const source$ = merge(tick$, left$, right$, down$, rotate$)
     .pipe(
         scan<ActionType, State>((s: State, action:ActionType) => {
           if(typeof action === 'number'){

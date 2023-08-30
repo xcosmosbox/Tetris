@@ -3,7 +3,7 @@
 /** Utility functions */
 
 import { Block, Viewport } from "./main";
-import { SquareBlock } from "./state";
+import { RaisedBlock, SquareBlock } from "./state";
 
 // util function to simulate factory method to create the attribute for new block
 export const createNewShapeFactory = ():GameBlock =>{
@@ -11,7 +11,8 @@ export const createNewShapeFactory = ():GameBlock =>{
     // const randomShape = shape[Math.floor(Math.random() * shape.length)];
     // if(randomShape === )
   
-    return new SquareBlock();
+    // return new SquareBlock();
+    return new RaisedBlock();
   }
 
 // util function to check line whether is need to remove
