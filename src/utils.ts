@@ -7,6 +7,7 @@ import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
 
 const randomShape = ():GameBlock => {
     const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
+    // const blockContainer = [LineBlock];
     const randomIndex = Math.floor(Math.random()*blockContainer.length);
     return new blockContainer[randomIndex]();
 }
@@ -21,8 +22,27 @@ export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
     // If a row in the array is completely filled, the representation can be eliminated
     return oldGameCubes.some(row => row.every(cube => cube !== null));
 }
+
+// helper function to find the closest non-empty upper row index by lineRemoved() function
+const findClosestNonEmptyUpRowIndex = (cubes: (GameCube | null)[][], startRow: number): number | null =>{
+    const reversedTemps = cubes.slice(0, startRow+1).reverse();
+    const result = reversedTemps.findIndex(row => row.some(element => element !== null));
+    return result !== -1 ? startRow - result : null;
+} 
+const findMinDistanceToBottom = (cubes: (GameCube | null)[][], startRow: number): number => {
+    const rows = cubes[startRow];
+    const distance = rows.map( (element, colIndex) => {
+        if(element === null){
+            return Infinity;
+        }
+        const distanceToNonEmpty = cubes.slice(startRow + 1, cubes.length)
+                                        .findIndex(nextRow => nextRow[colIndex] !== null);
+        return distanceToNonEmpty === -1 ? cubes.length - startRow : distanceToNonEmpty;
+    } );
+    return Math.min(...distance);
+}
 // util function to check line removed and update related data
-export const lineRemoved = (s: State):ScoreAndDropRate =>{
+export const lineRemoved = (s: State):State =>{
     // TODO: update the score and call gameScoreChangeSubject.next(THE_LEAST_SCORE), gameScoreChange$ will subscribe the change
     /** if (one line has been removed){
      *    const newScore = s.scoreAndDropRate.gameScore + getPoints;
@@ -31,7 +51,54 @@ export const lineRemoved = (s: State):ScoreAndDropRate =>{
      *    const newDropRate = newLevel/10;
      *    return {newScore, newLevel, newHightScore, newDropRate} as ScoreAndDropRate;
      *  } */ 
-    return {...s.scoreAndDropRate} as ScoreAndDropRate;
+
+    console.log(s.oldGameCubes)
+    
+    // get all index of full fill row 
+    const fullyFilledRowIndices = s.oldGameCubes
+    .map((row, index) => (row.every(cell => cell !== null) ? index : -1))
+    .filter(index => index !== -1);
+
+    // get new 2D array exclusive full fill row
+    const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
+        return fullyFilledRowIndices.includes(rowIndex) ? new Array(row.length).fill(null) : row;
+    });
+    console.log(clearedCanvas)
+
+    const moveDownMatrix = clearedCanvas.map((row, index) => {
+        if(index <= Math.max(...fullyFilledRowIndices)){
+            return index - fullyFilledRowIndices.length >= 0 
+            ? clearedCanvas[index - fullyFilledRowIndices.length].map(element => {
+                return element ? {
+                    ...element,
+                    position: {
+                        ...element.position,
+                        y: element.position.y + fullyFilledRowIndices.length * Block.HEIGHT
+                    }
+                } as GameCube : null;
+            }) 
+            : new Array(row.length).fill(null);
+        }
+        return row;
+    });
+    console.log(moveDownMatrix)
+
+    const newScore = s.scoreAndDropRate?.gameScore as number + 100 * fullyFilledRowIndices.length;
+    const newLevel = Math.floor(newScore / 1000) + 1;
+    const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
+    const newDropRate = newLevel;
+
+    return {
+        ...s,
+        oldGameCubes: moveDownMatrix,
+        scoreAndDropRate: {
+            gameScore: newScore,
+            gameHighScore: newHightScore,
+            gameLevel: newLevel,
+            dropRate: newDropRate
+        }
+    } as State;
+
 }
 
 // util function to check whether is continue for current block TODO: check more detail for future

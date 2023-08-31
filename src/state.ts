@@ -1065,56 +1065,41 @@ export const tick = (s: State, action: ActionType = null):State => {
             if((action as Keypress).axis === 'x' && (action as Keypress).amount < 0){
                 const newState = s.currentGameCube.moveLeft(s, (action as Keypress).amount);
                 if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-                    const updateState = lineRemoved(newState);
-                    return {
-                        ...newState,
-                        scoreAndDropRate: updateState
-                    } as State;
+                    return lineRemoved(newState);
                 } else {
                     return newState;
                 }
             } else if((action as Keypress).axis === 'x' && (action as Keypress).amount > 0){
                 const newState = s.currentGameCube.moveRight(s, (action as Keypress).amount);
                 if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-                    const updateState = lineRemoved(newState);
-                    return {
-                        ...newState,
-                        scoreAndDropRate: updateState
-                    } as State;
+                    return lineRemoved(newState);
                 } else {
                     return newState;
                 }
             } else if((action as Keypress).axis === 'y' && (action as Keypress).amount > 0){
                 const newState = s.currentGameCube.moveDown(s, (action as Keypress).amount);
                 if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-                    const updateState = lineRemoved(newState);
-                    return {
-                        ...newState,
-                        scoreAndDropRate: updateState
-                    } as State;
+                    return lineRemoved(newState);
                 } else {
                     return newState;
                 }
             } else if((action as Keypress).axis === 'z'){
                 const newState = s.currentGameCube.rotate(s);
                 if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-                    const updateState = lineRemoved(newState);
-                    return {
-                        ...newState,
-                        scoreAndDropRate: updateState
-                    } as State;
+                    return lineRemoved(newState);
+                    // const updateState = lineRemoved(newState);
+                    // return {
+                    //     ...newState,
+                    //     scoreAndDropRate: updateState
+                    // } as State;
                 } else {
                     return newState;
                 }
             }
         } else {
-        const newState = s.currentGameCube.updatePositions(s);
+            const newState = s.currentGameCube.updatePositions(s);
             if(needLineRemove(newState.oldGameCubes as GameCube[][])){
-                const updateState = lineRemoved(newState);
-                return {
-                    ...newState,
-                    scoreAndDropRate: updateState
-                } as State;
+                return lineRemoved(newState);
             } else {
                 return newState;
             }
