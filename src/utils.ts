@@ -4,8 +4,9 @@ import { Block, Constants, SHAPES, Viewport } from "./main";
 import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
 
 const randomShape = (): GameBlock => {
-  const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
-  // const blockContainer = [LineBlock];
+//   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
+//   && cell.shape !== SHAPES.BEDROCK
+  const blockContainer = [LineBlock, SquareBlock];
   const randomIndex = Math.floor(Math.random() * blockContainer.length);
   return new blockContainer[randomIndex]();
 };
@@ -94,9 +95,10 @@ export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
 export const lineRemoved = (s: State): State => {
   // get all index of full fill row
   const fullyFilledRowIndices = s.oldGameCubes
-    .map((row, index) => (row.every((cell) => cell !== null) ? index : -1))
+    .map((row, index) => (row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK) ? index : -1))
     .filter((index) => index !== -1);
 
+  console.log(fullyFilledRowIndices)
   // get new 2D array exclusive full fill row
   const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
     return fullyFilledRowIndices.includes(rowIndex)
