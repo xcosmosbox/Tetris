@@ -131,6 +131,8 @@ export function main() {
     HTMLElement;
   const gameover = document.querySelector("#gameOver") as SVGGraphicsElement &
     HTMLElement;
+  const gameRestart = document.querySelector("#gameRestart") as SVGGraphicsElement &
+    HTMLElement;
   const container = document.querySelector("#main") as HTMLElement;
 
   svg.setAttribute("height", `${Viewport.CANVAS_HEIGHT}`);
@@ -146,6 +148,7 @@ export function main() {
   /** User input */
 
   const key$ = fromEvent<KeyboardEvent>(document, "keypress");
+  const mouseClick$ = fromEvent<MouseEvent>(document, "click");
 
   
 
@@ -244,12 +247,26 @@ export function main() {
   };
 
 
-  const source$ = merge(tick$, left$, right$, down$, rotate$)
+  const source$ = merge(tick$, left$, right$, down$, rotate$, mouseClick$)
     .pipe(
         scan<ActionType, State>((s: State, action:ActionType) => {
           if(typeof action === 'number'){
             return tick(s);
-          } else {
+          } else if (action instanceof MouseEvent){
+            if(s.gameEnd){
+              return {
+                ...initialState,
+                scoreAndDropRate:{
+                  ...initialState.scoreAndDropRate,
+                  gameHighScore: (s.scoreAndDropRate?.gameScore as number) > (initialState.scoreAndDropRate?.gameHighScore as number)
+                                && (s.scoreAndDropRate?.gameScore as number) > (s.scoreAndDropRate?.gameHighScore as number)
+                                ? s.scoreAndDropRate?.gameScore : s.scoreAndDropRate?.gameHighScore
+                }
+              } as State;
+            }
+            return s;
+          } 
+          else {
             return tick(s, action);
           }
         }, initialState)
@@ -259,8 +276,10 @@ export function main() {
       
       if (s.gameEnd) {
         show(gameover);
+        show(gameRestart);
       } else {
         hide(gameover);
+        hide(gameRestart);
       }
     });
 
