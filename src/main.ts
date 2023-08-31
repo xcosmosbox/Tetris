@@ -14,7 +14,7 @@
 
 import "./style.css";
 
-import { BehaviorSubject, fromEvent, interval, merge } from "rxjs";
+import { BehaviorSubject, from, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 import { tick } from "./state";
 
@@ -135,6 +135,7 @@ export function main() {
   const gameRestart = document.querySelector("#gameRestart") as SVGGraphicsElement &
     HTMLElement;
   const container = document.querySelector("#main") as HTMLElement;
+  const replayButton = document.querySelector("#instantReplay") as HTMLElement;
 
   svg.setAttribute("height", `${Viewport.CANVAS_HEIGHT}`);
   svg.setAttribute("width", `${Viewport.CANVAS_WIDTH}`);
@@ -149,7 +150,20 @@ export function main() {
   /** User input */
 
   const key$ = fromEvent<KeyboardEvent>(document, "keypress");
-  const mouseClick$ = fromEvent<MouseEvent>(document, "click");
+  const mouseClick$ = fromEvent<MouseEvent>(document, "click").pipe(
+    map( () => {
+      return {
+        type: "mouseClick"
+      } as ClickType;
+    })
+  );
+  const instantReplay$ = fromEvent<MouseEvent>(replayButton, "click").pipe(
+    map( () => {
+      return {
+        type: "instantReplay"
+      } as ClickType;
+    })
+  );
 
   
 
@@ -248,12 +262,12 @@ export function main() {
   };
 
 
-  const source$ = merge(tick$, left$, right$, down$, rotate$, mouseClick$)
+  const source$ = merge(tick$, left$, right$, down$, rotate$, mouseClick$, instantReplay$)
     .pipe(
         scan<ActionType, State>((s: State, action:ActionType) => {
           if(typeof action === 'number'){
             return tick(s);
-          } else if (action instanceof MouseEvent){
+          } else if (action && 'type' in action && action.type === "mouseClick"){
             if(s.gameEnd){
               return {
                 ...initialState,
@@ -266,9 +280,18 @@ export function main() {
               } as State;
             }
             return s;
-          } 
-          else {
-            return tick(s, action);
+          } else if (action && 'type' in action && action.type === "instantReplay"){
+            return {
+              ...initialState,
+              scoreAndDropRate:{
+                ...initialState.scoreAndDropRate,
+                gameHighScore: (s.scoreAndDropRate?.gameScore as number) > (initialState.scoreAndDropRate?.gameHighScore as number)
+                              && (s.scoreAndDropRate?.gameScore as number) > (s.scoreAndDropRate?.gameHighScore as number)
+                              ? s.scoreAndDropRate?.gameScore : s.scoreAndDropRate?.gameHighScore
+              }
+            } as State;
+          } else {
+              return tick(s, action);
           }
         }, initialState)
       )

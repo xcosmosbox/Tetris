@@ -66,6 +66,31 @@ svg rect {
   stroke-width: 2px;
 }
 
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  width: 151px;
+  height: 48px;
+  border: 2px solid black;
+  margin-top: 1em;
+  border-radius: 5px;
+  font-size: 0.8em;
+  font-weight: bolder;
+  text-align: center;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: rgb(240, 240, 240); 
+}
+
+.button span {
+  color: red;
+}
+
+
 #svgCanvas {
   background-color: rgb(183, 151, 110);
 }

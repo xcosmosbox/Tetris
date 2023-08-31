@@ -32,8 +32,12 @@ type Keypress = Readonly<{
     amount: number
 }>;
 
+type ClickType = Readonly<{
+    type: string
+}>
 
-type ActionType = ((number | Keypress | MouseEvent) | null);
+
+type ActionType = ((number | Keypress | ClickType) | null);
 
 interface SvgCoordinate{
     index_x: number;

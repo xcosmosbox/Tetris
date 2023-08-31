@@ -97,7 +97,6 @@ export const lineRemoved = (s: State): State => {
     .map((row, index) => (row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK) ? index : -1))
     .filter((index) => index !== -1);
 
-  console.log(fullyFilledRowIndices)
   // get new 2D array exclusive full fill row
   const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
     return fullyFilledRowIndices.includes(rowIndex)
