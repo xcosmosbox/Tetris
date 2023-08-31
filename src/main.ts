@@ -190,8 +190,8 @@ export function main() {
       const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
         height: `${Block.HEIGHT}`,
         width: `${Block.WIDTH}`,
-        x: `${block.position.x}`,
-        y: `${block.position.y}`,
+        x: `${block.position.x - Block.WIDTH}`,
+        y: `${block.position.y + Block.HEIGHT}`,
         style: "fill: "+`${block.color}`,
         class: "preGameBlock"
       });
