@@ -2,7 +2,7 @@
 
 /** Utility functions */
 
-import { Block, Viewport } from "./main";
+import { Block, Constants, SHAPES, Viewport } from "./main";
 import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
 
 const randomShape = ():GameBlock => {
@@ -17,23 +17,64 @@ export const createNewShapeFactory = ():{currentBlock:GameBlock, nextBlock:GameB
     return {currentBlock:randomShape(), nextBlock:randomShape()};
 }
 
-export const getPoints = (scoreAndDropRate: ScoreAndDropRate, lineRemoved: boolean = false, amount: number = 0): ScoreAndDropRate => {
-    const newScore = lineRemoved ? scoreAndDropRate.gameScore as number + 100 * amount : scoreAndDropRate.gameScore as number + 10;
+export const createRowBedrocks = (rowIndex: number):GameCube[] => {
+    return Array.from({length: 10}).map((_, index) => {
+        return {
+            color:"gray",
+            shape:SHAPES.BEDROCK,
+            position:{
+                x: index * Block.WIDTH,
+                y: Viewport.CANVAS_HEIGHT - (Constants.GRID_HEIGHT - rowIndex)*Block.HEIGHT
+            } as Position,
+            svgCoordinates:{
+                index_x: Constants.GRID_HEIGHT - rowIndex,
+                index_y: Viewport.CANVAS_WIDTH / (index * Block.WIDTH)
+            },
+            rotationID:0
+        } as GameCube;
+    })
+}
+
+export const getPoints = (s: State, lineRemoved: boolean = false, amount: number = 0): State => {
+    const newScore = lineRemoved ? s.scoreAndDropRate?.gameScore as number + 100 * amount : s.scoreAndDropRate?.gameScore as number + 10;
     const newLevel = Math.floor(newScore / 1000) + 1;
-    const newHightScore = newScore > (scoreAndDropRate.gameHighScore as number) ? newScore : scoreAndDropRate.gameHighScore as number;
+    const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
     const newDropRate = newLevel;
+
+    if(newLevel > 1){
+        const buildBedrock = s.oldGameCubes.map((row, index) => {
+            if(index >= Constants.GRID_HEIGHT - (newLevel-1) ){
+                return createRowBedrocks(index);
+            }
+            return row;
+        })
+        return {
+            ...s,
+            scoreAndDropRate:{
+                gameScore: newScore,
+                gameHighScore: newHightScore,
+                gameLevel: newLevel,
+                dropRate: newDropRate
+            } as ScoreAndDropRate,
+            oldGameCubes: buildBedrock
+        } as State;
+    }
+    
     return {
-        gameScore: newScore,
-        gameHighScore: newHightScore,
-        gameLevel: newLevel,
-        dropRate: newDropRate
-    } as ScoreAndDropRate;
+        ...s,
+        scoreAndDropRate:{
+            gameScore: newScore,
+            gameHighScore: newHightScore,
+            gameLevel: newLevel,
+            dropRate: newDropRate
+        } as ScoreAndDropRate,
+    } as State;
 }
 
 // util function to check line whether is need to remove
 export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
     // If a row in the array is completely filled, the representation can be eliminated
-    return oldGameCubes.some(row => row.every(cube => cube !== null));
+    return oldGameCubes.some(row => row.every(cube => cube !== null && cube.shape !== SHAPES.BEDROCK));
 }
 
 // util function to check line removed and update related data
@@ -65,21 +106,13 @@ export const lineRemoved = (s: State):State =>{
         return row;
     });
 
-    const newScore = s.scoreAndDropRate?.gameScore as number + 100 * fullyFilledRowIndices.length;
-    const newLevel = Math.floor(newScore / 1000) + 1;
-    const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
-    const newDropRate = newLevel;
+    return getPoints({...s, oldGameCubes: moveDownMatrix}, true, fullyFilledRowIndices.length);
 
-    return {
-        ...s,
-        oldGameCubes: moveDownMatrix,
-        scoreAndDropRate: {
-            gameScore: newScore,
-            gameHighScore: newHightScore,
-            gameLevel: newLevel,
-            dropRate: newDropRate
-        }
-    } as State;
+    // const newScore = s.scoreAndDropRate?.gameScore as number + 100 * fullyFilledRowIndices.length;
+    // const newLevel = Math.floor(newScore / 1000) + 1;
+    // const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
+    // const newDropRate = newLevel;
+
 
 }
 

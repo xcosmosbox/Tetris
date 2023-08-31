@@ -1029,7 +1029,6 @@ export class LineBlock implements GameBlock{
 }
 
 
-
 /**
  * Updates the state by proceeding with one time step.
  *
@@ -1109,14 +1108,12 @@ export const tick = (s: State, action: ActionType = null):State => {
         const {currentBlock, nextBlock} = createNewShapeFactory();
         if(storedOldState.oldGameCubes[0].some(cube => cube !== null)){
             return {
-                ...storedOldState,
-                scoreAndDropRate: getPoints(storedOldState.scoreAndDropRate as ScoreAndDropRate),
+                ...getPoints(storedOldState),
                 gameEnd: true
             } as State;
         }
         return {
-            ...storedOldState,
-            scoreAndDropRate: getPoints(storedOldState.scoreAndDropRate as ScoreAndDropRate),
+            ...getPoints(storedOldState),
             currentGameCube: s.nextBlock || currentBlock,
             nextBlock: nextBlock,
         } as State;

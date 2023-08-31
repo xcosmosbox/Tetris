@@ -54,7 +54,8 @@ export const SHAPES = {
   SQUARE_BLOCK: 0,
   RAISED_BLOCK: 1,
   LIGHTNING_BLOCK: 2,
-  LINE_BLOCK: 3
+  LINE_BLOCK: 3,
+  BEDROCK: 4
 } as const;
 
 /** User input */
