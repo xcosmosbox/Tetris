@@ -39,7 +39,6 @@ export const getPoints = (s: State, lineRemoved: boolean = false, amount: number
     const newScore = lineRemoved ? s.scoreAndDropRate?.gameScore as number + 100 * amount : s.scoreAndDropRate?.gameScore as number + 10;
     const newLevel = Math.floor(newScore / 1000) + 1;
     const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
-    const newDropRate = newLevel;
 
     if(newLevel > 1){
         const buildBedrock = s.oldGameCubes.map((row, index) => {
@@ -51,10 +50,10 @@ export const getPoints = (s: State, lineRemoved: boolean = false, amount: number
         return {
             ...s,
             scoreAndDropRate:{
+                ...s.scoreAndDropRate,
                 gameScore: newScore,
                 gameHighScore: newHightScore,
                 gameLevel: newLevel,
-                dropRate: newDropRate
             } as ScoreAndDropRate,
             oldGameCubes: buildBedrock
         } as State;
@@ -63,10 +62,10 @@ export const getPoints = (s: State, lineRemoved: boolean = false, amount: number
     return {
         ...s,
         scoreAndDropRate:{
+            ...s.scoreAndDropRate,
             gameScore: newScore,
             gameHighScore: newHightScore,
             gameLevel: newLevel,
-            dropRate: newDropRate
         } as ScoreAndDropRate,
     } as State;
 }
