@@ -4,9 +4,8 @@ import { Block, Constants, SHAPES, Viewport } from "./main";
 import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
 
 const randomShape = (): GameBlock => {
-//   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
-//   && cell.shape !== SHAPES.BEDROCK
-  const blockContainer = [LineBlock, SquareBlock];
+  const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
+//   const blockContainer = [LineBlock, SquareBlock];
   const randomIndex = Math.floor(Math.random() * blockContainer.length);
   return new blockContainer[randomIndex]();
 };
@@ -53,7 +52,7 @@ export const getPoints = (
       ? newScore
       : (s.scoreAndDropRate?.gameHighScore as number);
 
-  if (newLevel > 1) {
+  if (newLevel > 1 && newLevel <= 10) {
     const buildBedrock = s.oldGameCubes.map((row, index) => {
       if (index >= Constants.GRID_HEIGHT - (newLevel - 1)) {
         return createRowBedrocks(index);
