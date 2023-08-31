@@ -23,37 +23,8 @@ export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
     return oldGameCubes.some(row => row.every(cube => cube !== null));
 }
 
-// helper function to find the closest non-empty upper row index by lineRemoved() function
-const findClosestNonEmptyUpRowIndex = (cubes: (GameCube | null)[][], startRow: number): number | null =>{
-    const reversedTemps = cubes.slice(0, startRow+1).reverse();
-    const result = reversedTemps.findIndex(row => row.some(element => element !== null));
-    return result !== -1 ? startRow - result : null;
-} 
-const findMinDistanceToBottom = (cubes: (GameCube | null)[][], startRow: number): number => {
-    const rows = cubes[startRow];
-    const distance = rows.map( (element, colIndex) => {
-        if(element === null){
-            return Infinity;
-        }
-        const distanceToNonEmpty = cubes.slice(startRow + 1, cubes.length)
-                                        .findIndex(nextRow => nextRow[colIndex] !== null);
-        return distanceToNonEmpty === -1 ? cubes.length - startRow : distanceToNonEmpty;
-    } );
-    return Math.min(...distance);
-}
 // util function to check line removed and update related data
 export const lineRemoved = (s: State):State =>{
-    // TODO: update the score and call gameScoreChangeSubject.next(THE_LEAST_SCORE), gameScoreChange$ will subscribe the change
-    /** if (one line has been removed){
-     *    const newScore = s.scoreAndDropRate.gameScore + getPoints;
-     *    const newLevel = Math.floor(newScore / 100) + 1;
-     *    const newHightScore = newScore > s.scoreAndDropRate.gameHighScore ? newScore : s.scoreAndDropRate.gameHighScore;
-     *    const newDropRate = newLevel/10;
-     *    return {newScore, newLevel, newHightScore, newDropRate} as ScoreAndDropRate;
-     *  } */ 
-
-    console.log(s.oldGameCubes)
-    
     // get all index of full fill row 
     const fullyFilledRowIndices = s.oldGameCubes
     .map((row, index) => (row.every(cell => cell !== null) ? index : -1))
@@ -63,7 +34,6 @@ export const lineRemoved = (s: State):State =>{
     const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
         return fullyFilledRowIndices.includes(rowIndex) ? new Array(row.length).fill(null) : row;
     });
-    console.log(clearedCanvas)
 
     const moveDownMatrix = clearedCanvas.map((row, index) => {
         if(index <= Math.max(...fullyFilledRowIndices)){
@@ -81,7 +51,6 @@ export const lineRemoved = (s: State):State =>{
         }
         return row;
     });
-    console.log(moveDownMatrix)
 
     const newScore = s.scoreAndDropRate?.gameScore as number + 100 * fullyFilledRowIndices.length;
     const newLevel = Math.floor(newScore / 1000) + 1;
@@ -101,22 +70,6 @@ export const lineRemoved = (s: State):State =>{
 
 }
 
-// util function to check whether is continue for current block TODO: check more detail for future
-export const checkContinueMove = (s: State): boolean =>{
-    // go to create new game cube
-    if(!s.currentGameCube){
-        return false;
-    }
-
-    // If the cube reaches the bottom or there are other cubes below it, stop moving.
-    // if(s.oldGameCubes && s.currentGameCube && 
-    //   (s.currentGameCube?.position.y === Viewport.CANVAS_HEIGHT - Block.HEIGHT || 
-    //     s.oldGameCubes[Math.floor((s.currentGameCube?.position.y as number)/Block.HEIGHT)+1][Math.floor((s.currentGameCube?.position.x as number)/Block.WIDTH)])){
-    //       return false;
-    // }
-
-    return true;
-}
 
 //util function to map new array
 export const updateOldGameCubesUtil = (oldArray: GameCube[][], updateRow: number, updateCol: number, newValue: GameCube):GameCube[][] => {
@@ -241,30 +194,3 @@ export const downSuccess = (block: GameBlock, s: State, amount: number): State =
         currentGameCube: block
     } as State;
 }
-
-// export const moveBottomCanvas = (block: GameBlock, s: State): State => {
-//     const newCubes = block.cubes.map(cube => {
-//         if(cube.rotationID === 2 || cube.rotationID === 3){
-//         return {
-//             ...cube,
-//             position:{
-//             x:cube.position.x,
-//             y:Viewport.CANVAS_HEIGHT-Block.HEIGHT
-//             }
-//         }
-//         } else {
-//         return {
-//             ...cube,
-//             position:{
-//             x:cube.position.x,
-//             y:Viewport.CANVAS_HEIGHT-Block.HEIGHT-Block.HEIGHT
-//             }
-//         }
-//         }
-//     });
-//     block.cubes = newCubes;
-//     return {
-//         ...s,
-//         currentGameCube: block
-//     } as State;
-// }
