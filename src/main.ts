@@ -207,15 +207,14 @@ export function main() {
    * @param s Current state
    */
   const render = (s: State) => {
-    // // Add a block to the preview canvas
-    // const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `${Block.WIDTH * 2}`,
-    //   y: `${Block.HEIGHT}`,
-    //   style: "fill: green",
-    // });
-    // preview.appendChild(cubePreview);
+
+    // shown game level, score and highScore
+    if(s.scoreAndDropRate){
+      levelText.textContent = s.scoreAndDropRate.gameLevel?.toString() || "0";
+      scoreText.textContent = s.scoreAndDropRate.gameScore?.toString() || "0";
+      highScoreText.textContent = s.scoreAndDropRate.gameHighScore?.toString() || "0";
+      
+    }
 
     // refresh the svg view
     const blocks = svg.querySelectorAll('.gameBlock');
@@ -240,47 +239,6 @@ export function main() {
     if(s.oldGameCubes){
       s.oldGameCubes.map(row => row.map(renderChildToSvg));
     }
-
-
-    // // left top (0,0)
-    // const cube = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `0`,
-    //   y: `0`,
-    //   style: "fill: "+`red`,
-    // });
-    // svg.appendChild(cube);
-
-    // // right top (${Viewport.CANVAS_WIDTH-Block.WIDTH} , 0)
-    // const cube2 = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `${Viewport.CANVAS_WIDTH-Block.WIDTH}`,
-    //   y: `0`,
-    //   style: "fill: "+`red`,
-    // });
-    // svg.appendChild(cube2);
-
-    // // left bottom (0, {Viewport.CANVAS_HEIGHT - Block.HEIGHT})
-    // const cube3 = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `0`,
-    //   y: `${Viewport.CANVAS_HEIGHT - Block.HEIGHT}`,
-    //   style: "fill: "+`red`,
-    // });
-    // svg.appendChild(cube3);
-
-    // // left bottom (${Viewport.CANVAS_WIDTH - Block.WIDTH}, {Viewport.CANVAS_HEIGHT - Block.HEIGHT})
-    // const cube4 = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `${Viewport.CANVAS_WIDTH - Block.WIDTH}`,
-    //   y: `${Viewport.CANVAS_HEIGHT - Block.HEIGHT}`,
-    //   style: "fill: "+`red`,
-    // });
-    // svg.appendChild(cube4);
 
 
   };

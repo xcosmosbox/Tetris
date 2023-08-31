@@ -1,5 +1,5 @@
 import { Block, Constants, SHAPES, Viewport } from "./main";
-import { leftFailed, leftSuccess, rightFailed, rightSuccess, downFailed, downSuccess, updateOldGameCubesUtil, createNewShapeFactory, needLineRemove, lineRemoved } from "./utils";
+import { leftFailed, leftSuccess, rightFailed, rightSuccess, downFailed, downSuccess, updateOldGameCubesUtil, createNewShapeFactory, needLineRemove, lineRemoved, getPoints } from "./utils";
 
 
 export class SquareBlock implements GameBlock{
@@ -1110,11 +1110,13 @@ export const tick = (s: State, action: ActionType = null):State => {
         if(storedOldState.oldGameCubes[0].some(cube => cube !== null)){
             return {
                 ...storedOldState,
+                scoreAndDropRate: getPoints(storedOldState.scoreAndDropRate as ScoreAndDropRate),
                 gameEnd: true
             } as State;
         }
         return {
             ...storedOldState,
+            scoreAndDropRate: getPoints(storedOldState.scoreAndDropRate as ScoreAndDropRate),
             currentGameCube: s.nextBlock || currentBlock,
             nextBlock: nextBlock,
         } as State;

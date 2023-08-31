@@ -17,6 +17,19 @@ export const createNewShapeFactory = ():{currentBlock:GameBlock, nextBlock:GameB
     return {currentBlock:randomShape(), nextBlock:randomShape()};
 }
 
+export const getPoints = (scoreAndDropRate: ScoreAndDropRate, lineRemoved: boolean = false, amount: number = 0): ScoreAndDropRate => {
+    const newScore = lineRemoved ? scoreAndDropRate.gameScore as number + 100 * amount : scoreAndDropRate.gameScore as number + 10;
+    const newLevel = Math.floor(newScore / 1000) + 1;
+    const newHightScore = newScore > (scoreAndDropRate.gameHighScore as number) ? newScore : scoreAndDropRate.gameHighScore as number;
+    const newDropRate = newLevel;
+    return {
+        gameScore: newScore,
+        gameHighScore: newHightScore,
+        gameLevel: newLevel,
+        dropRate: newDropRate
+    } as ScoreAndDropRate;
+}
+
 // util function to check line whether is need to remove
 export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
     // If a row in the array is completely filled, the representation can be eliminated
