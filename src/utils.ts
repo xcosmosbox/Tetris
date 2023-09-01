@@ -15,6 +15,9 @@ export const createNewShapeFactory = (): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
+  if(Math.random() < 0.5){
+    return { currentBlock: randomShape(), nextBlock: randomShape() };
+  }
   return { currentBlock: randomShape(), nextBlock: randomShape() };
 };
 

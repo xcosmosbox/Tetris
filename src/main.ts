@@ -55,7 +55,8 @@ export const SHAPES = {
   RAISED_BLOCK: 1,
   LIGHTNING_BLOCK: 2,
   LINE_BLOCK: 3,
-  BEDROCK: 4
+  BEDROCK: 4,
+  STAR: 5
 } as const;
 
 /** User input */
@@ -257,6 +258,15 @@ export function main() {
     if(s.oldGameCubes){
       s.oldGameCubes.map(row => row.map(renderChildToSvg));
     }
+
+    // const cube = createSvgElement(svg.namespaceURI, "rect", {
+    //   height: `${Block.HEIGHT}`,
+    //   width: `${Block.WIDTH}`,
+    //   x: `0`,
+    //   y: `0`,
+    //   style: "fill: "+`rgba(128, 109, 158, 0.7)`,
+    // });
+    // svg.appendChild(cube);
 
 
   };
