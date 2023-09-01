@@ -1,4 +1,3 @@
-
 import { Block, Constants, SHAPES, Viewport } from "./main";
 import {
   leftFailed,
@@ -289,7 +288,10 @@ export class SquareBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
+      return this.updateOldGameCubesRec(
+        index + 1,
+        oldGameCubesUpdated as GameCube[][]
+      );
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -708,7 +710,10 @@ export class RaisedBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
+      return this.updateOldGameCubesRec(
+        index + 1,
+        oldGameCubesUpdated as GameCube[][]
+      );
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -1150,7 +1155,10 @@ export class LightningBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
+      return this.updateOldGameCubesRec(
+        index + 1,
+        oldGameCubesUpdated as GameCube[][]
+      );
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -1496,15 +1504,17 @@ export class LineBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
+      return this.updateOldGameCubesRec(
+        index + 1,
+        oldGameCubesUpdated as GameCube[][]
+      );
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
 }
 
-
 abstract class SpecialBlock implements GameBlock {
-  constructor(public readonly color:string, public readonly shape: number){
+  constructor(public readonly color: string, public readonly shape: number) {
     const newBlock: GameCube = {
       color: color,
       shape: shape,
@@ -1514,43 +1524,50 @@ abstract class SpecialBlock implements GameBlock {
           (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
         y: 0,
       },
-      svgCoordinates:{
+      svgCoordinates: {
         index_x: 0,
         index_y:
           Viewport.CANVAS_WIDTH /
           (Block.WIDTH *
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
       },
-      rotationID:0
+      rotationID: 0,
     } as GameCube;
     this.cubes = [newBlock];
   }
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
-  moveLeft = (s: State, amount:number): State => {
-      if(this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)){
-        if(this.cubes.some((cube) => (s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT)][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]))){
-          return leftFailed(this, s);
-        } else {
-          return leftSuccess(this, s, amount);
-        }
+  moveLeft = (s: State, amount: number): State => {
+    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+      if (
+        this.cubes.some(
+          (cube) =>
+            s.oldGameCubes[
+              Math.floor((cube.position.y as number) / Block.HEIGHT)
+            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+        )
+      ) {
+        return leftFailed(this, s);
       } else {
-        const newCubes = this.cubes.map((cube) => {
-          return {
-            ...cube,
-            position:{
-              x: 0,
-              y: cube.position.y
-            }
-          };
-        });
-        this.cubes = newCubes;
-        return {
-          ...s,
-          currentGameCube: this
-        } as State;
+        return leftSuccess(this, s, amount);
       }
-  }
-  moveRight = (s: State, amount:number): State => {
+    } else {
+      const newCubes = this.cubes.map((cube) => {
+        return {
+          ...cube,
+          position: {
+            x: 0,
+            y: cube.position.y,
+          },
+        };
+      });
+      this.cubes = newCubes;
+      return {
+        ...s,
+        currentGameCube: this,
+      } as State;
+    }
+  };
+  moveRight = (s: State, amount: number): State => {
     if (
       this.cubes.every(
         (cube) =>
@@ -1574,20 +1591,20 @@ abstract class SpecialBlock implements GameBlock {
       const newCubes = this.cubes.map((cube) => {
         return {
           ...cube,
-          position:{
+          position: {
             x: Viewport.CANVAS_WIDTH - Block.WIDTH,
-            y: cube.position.y
-          }
+            y: cube.position.y,
+          },
         };
       });
       this.cubes = newCubes;
       return {
         ...s,
-        currentGameCube: this
+        currentGameCube: this,
       } as State;
     }
-  }
-  moveDown = (s: State, amount:number): State => {
+  };
+  moveDown = (s: State, amount: number): State => {
     if (
       this.cubes.every(
         (cube) =>
@@ -1611,22 +1628,22 @@ abstract class SpecialBlock implements GameBlock {
       const newCubes = this.cubes.map((cube) => {
         return {
           ...cube,
-          position:{
+          position: {
             x: cube.position.x,
-            y: Viewport.CANVAS_HEIGHT - Block.HEIGHT
-          }
+            y: Viewport.CANVAS_HEIGHT - Block.HEIGHT,
+          },
         };
       });
       this.cubes = newCubes;
       return {
         ...s,
-        currentGameCube: this
+        currentGameCube: this,
       } as State;
     }
-  }
+  };
   rotate = (s: State): State => {
-      return s;
-  }
+    return s;
+  };
   checkContinueMove = (s: State): boolean => {
     if (
       this.cubes.every(
@@ -1651,13 +1668,13 @@ abstract class SpecialBlock implements GameBlock {
     } else {
       return false;
     }
-  }
+  };
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
       Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
     );
-  }
+  };
   updateOldGameCubes = (s: State): State => {
     const newOldGameCubes = this.updateOldGameCubesRec(
       0,
@@ -1667,7 +1684,7 @@ abstract class SpecialBlock implements GameBlock {
       ...s,
       oldGameCubes: newOldGameCubes,
     } as State;
-  }
+  };
   // util function to update the old game cubes by recursive method
   updateOldGameCubesRec = (
     index: number,
@@ -1684,48 +1701,54 @@ abstract class SpecialBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
+      return this.updateOldGameCubesRec(
+        index + 1,
+        oldGameCubesUpdated as GameCube[][]
+      );
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
 }
 
-export class StarBlock extends SpecialBlock{
-      //"rgba(210, 53, 125, 0.4)",
-  constructor(){
+export class StarBlock extends SpecialBlock {
+  //"rgba(210, 53, 125, 0.4)",
+  constructor() {
     super("white", SHAPES.STAR);
   }
 }
 
-export class BombBlock extends SpecialBlock{
-  constructor(){
+export class BombBlock extends SpecialBlock {
+  constructor() {
     super("rgba(74, 64, 53, 0.7)", SHAPES.BOMB);
   }
   override updateOldGameCubes = (s: State): State => {
     const oneCube = this.cubes[0];
     const deletePositions = this.getAdjacentPositions(oneCube.position);
     const deletedPosition = deletePositions.reduce((acc, position) => {
-      return updateOldGameCubesUtil(acc, Math.floor((position.y as number) / Block.HEIGHT), Math.floor((position.x as number) / Block.WIDTH), null) as GameCube[][];
-
-    }, s.oldGameCubes as GameCube[][])
+      return updateOldGameCubesUtil(
+        acc,
+        Math.floor((position.y as number) / Block.HEIGHT),
+        Math.floor((position.x as number) / Block.WIDTH),
+        null
+      ) as GameCube[][];
+    }, s.oldGameCubes as GameCube[][]);
 
     return {
       ...s,
-      oldGameCubes: deletedPosition
+      oldGameCubes: deletedPosition,
     } as State;
-  }
+  };
 
   getAdjacentPositions = (position: Position): Position[] => {
-    const {x, y} = position;
+    const { x, y } = position;
     return [
-      {x: x, y: y - Block.HEIGHT},
-      {x: x, y: y + Block.HEIGHT},
-      {x: x - Block.WIDTH, y: y},
-      {x: x + Block.WIDTH, y: y},
-      {x, y}
-    ]
-  }
-  
+      { x: x, y: y - Block.HEIGHT },
+      { x: x, y: y + Block.HEIGHT },
+      { x: x - Block.WIDTH, y: y },
+      { x: x + Block.WIDTH, y: y },
+      { x, y },
+    ];
+  };
 }
 
 /**
@@ -1820,9 +1843,9 @@ export const tick = (s: State, action: ActionType = null): State => {
       }
     }
   } else {
-    if(s.currentGameCube.cubes.some(cube => cube.shape === SHAPES.BOMB)){
+    if (s.currentGameCube.cubes.some((cube) => cube.shape === SHAPES.BOMB)) {
       const storedOldState = s.currentGameCube.updateOldGameCubes(s);
-    } 
+    }
     const storedOldState = s.currentGameCube.updateOldGameCubes(s);
     const { currentBlock, nextBlock } = createNewShapeFactory(s);
     if (storedOldState.oldGameCubes[0].some((cube) => cube !== null)) {

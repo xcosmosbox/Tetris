@@ -18,7 +18,6 @@ import { BehaviorSubject, from, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 import { tick } from "./state";
 
-
 // /**
 //  * ONLY FOR TEST
 //  */
@@ -28,7 +27,6 @@ import { tick } from "./state";
 // /**
 //  * ONLY FOR TEST
 //  */
-
 
 /** Constants */
 export const Viewport = {
@@ -57,7 +55,7 @@ export const SHAPES = {
   LINE_BLOCK: 3,
   BEDROCK: 4,
   STAR: 5,
-  BOMB: 6
+  BOMB: 6,
 } as const;
 
 /** User input */
@@ -65,7 +63,6 @@ export const SHAPES = {
 type Key = "KeyS" | "KeyA" | "KeyD" | "KeyW";
 
 type Event = "keydown" | "keyup" | "keypress";
-
 
 /** State processing */
 
@@ -76,12 +73,12 @@ const initialState: State = {
     gameLevel: 1,
     gameScore: 0,
     gameHighScore: 0,
-    dropRate: 1
+    dropRate: 1,
   } as ScoreAndDropRate,
-  oldGameCubes : new Array(Constants.GRID_HEIGHT).fill(null).map(()=>new Array(Constants.GRID_WIDTH).fill(null))
-  
+  oldGameCubes: new Array(Constants.GRID_HEIGHT)
+    .fill(null)
+    .map(() => new Array(Constants.GRID_WIDTH).fill(null)),
 } as const;
-
 
 /** Rendering (side effects) */
 
@@ -134,8 +131,9 @@ export function main() {
     HTMLElement;
   const gameover = document.querySelector("#gameOver") as SVGGraphicsElement &
     HTMLElement;
-  const gameRestart = document.querySelector("#gameRestart") as SVGGraphicsElement &
-    HTMLElement;
+  const gameRestart = document.querySelector(
+    "#gameRestart"
+  ) as SVGGraphicsElement & HTMLElement;
   const container = document.querySelector("#main") as HTMLElement;
   const replayButton = document.querySelector("#instantReplay") as HTMLElement;
 
@@ -153,21 +151,19 @@ export function main() {
 
   const key$ = fromEvent<KeyboardEvent>(document, "keypress");
   const mouseClick$ = fromEvent<MouseEvent>(document, "click").pipe(
-    map( () => {
+    map(() => {
       return {
-        type: "mouseClick"
+        type: "mouseClick",
       } as ClickType;
     })
   );
   const instantReplay$ = fromEvent<MouseEvent>(replayButton, "click").pipe(
-    map( () => {
+    map(() => {
       return {
-        type: "instantReplay"
+        type: "instantReplay",
       } as ClickType;
     })
   );
-
-  
 
   const fromKey = (keyCode: Key, userKeypress: Keypress) =>
     key$.pipe(
@@ -175,10 +171,10 @@ export function main() {
       map(() => userKeypress)
     );
 
-  const left$ = fromKey("KeyA", {axis:'x', amount: -Block.WIDTH});
-  const right$ = fromKey("KeyD", {axis:'x', amount: Block.WIDTH});
-  const down$ = fromKey("KeyS", {axis: 'y', amount: Block.HEIGHT});
-  const rotate$ = fromKey("KeyW", { axis: 'z', amount: 0});
+  const left$ = fromKey("KeyA", { axis: "x", amount: -Block.WIDTH });
+  const right$ = fromKey("KeyD", { axis: "x", amount: Block.WIDTH });
+  const down$ = fromKey("KeyS", { axis: "y", amount: Block.HEIGHT });
+  const rotate$ = fromKey("KeyW", { axis: "z", amount: 0 });
 
   /** Observables */
 
@@ -187,37 +183,37 @@ export function main() {
 
   /**
    * render new child to svg
-   * 
+   *
    * @param block one game block
    */
   const renderChildToSvg = (block: GameCube | null) => {
-    if(block){
+    if (block) {
       const cube = createSvgElement(svg.namespaceURI, "rect", {
         height: `${Block.HEIGHT}`,
         width: `${Block.WIDTH}`,
         x: `${block.position.x}`,
         y: `${block.position.y}`,
-        style: "fill: "+`${block.color}`,
-        class: "gameBlock"
+        style: "fill: " + `${block.color}`,
+        class: "gameBlock",
       });
       svg.appendChild(cube);
     }
-  }
+  };
 
   const renderChildToPreview = (block: GameCube | null) => {
-    if(block){
+    if (block) {
       // Add a block to the preview canvas
       const cubePreview = createSvgElement(preview.namespaceURI, "rect", {
         height: `${Block.HEIGHT}`,
         width: `${Block.WIDTH}`,
         x: `${block.position.x - Block.WIDTH}`,
         y: `${block.position.y + Block.HEIGHT}`,
-        style: "fill: "+`${block.color}`,
-        class: "preGameBlock"
+        style: "fill: " + `${block.color}`,
+        class: "preGameBlock",
       });
       preview.appendChild(cubePreview);
     }
-  }
+  };
 
   /**
    * Renders the current state to the canvas.
@@ -227,37 +223,36 @@ export function main() {
    * @param s Current state
    */
   const render = (s: State) => {
-
     // shown game level, score and highScore
-    if(s.scoreAndDropRate){
+    if (s.scoreAndDropRate) {
       levelText.textContent = s.scoreAndDropRate.gameLevel?.toString() || "0";
       scoreText.textContent = s.scoreAndDropRate.gameScore?.toString() || "0";
-      highScoreText.textContent = s.scoreAndDropRate.gameHighScore?.toString() || "0";
-      
+      highScoreText.textContent =
+        s.scoreAndDropRate.gameHighScore?.toString() || "0";
     }
 
     // refresh the svg view
-    const blocks = svg.querySelectorAll('.gameBlock');
-    blocks.forEach(block => svg.removeChild(block));
+    const blocks = svg.querySelectorAll(".gameBlock");
+    blocks.forEach((block) => svg.removeChild(block));
 
     // refresh the preview
-    const preBlocks = preview.querySelectorAll('.preGameBlock');
-    preBlocks.forEach(block => preview.removeChild(block));
+    const preBlocks = preview.querySelectorAll(".preGameBlock");
+    preBlocks.forEach((block) => preview.removeChild(block));
 
     // render preview blocks
-    if(s.nextBlock){
-      s.nextBlock.cubes.forEach(cube => renderChildToPreview(cube));
+    if (s.nextBlock) {
+      s.nextBlock.cubes.forEach((cube) => renderChildToPreview(cube));
     }
 
     // render current block
-    if(s.currentGameCube){
-      s.currentGameCube.cubes.forEach(cube => renderChildToSvg(cube));
+    if (s.currentGameCube) {
+      s.currentGameCube.cubes.forEach((cube) => renderChildToSvg(cube));
       // renderChildToSvg(s.currentGameCube);
     }
 
     // render other blocks
-    if(s.oldGameCubes){
-      s.oldGameCubes.map(row => row.map(renderChildToSvg));
+    if (s.oldGameCubes) {
+      s.oldGameCubes.map((row) => row.map(renderChildToSvg));
     }
 
     // const cube = createSvgElement(svg.namespaceURI, "rect", {
@@ -268,47 +263,64 @@ export function main() {
     //   style: "fill: "+`rgba(128, 109, 158, 0.7)`,
     // });
     // svg.appendChild(cube);
-
-
   };
 
-
-  const source$ = merge(tick$, left$, right$, down$, rotate$, mouseClick$, instantReplay$)
+  const source$ = merge(
+    tick$,
+    left$,
+    right$,
+    down$,
+    rotate$,
+    mouseClick$,
+    instantReplay$
+  )
     .pipe(
-        scan<ActionType, State>((s: State, action:ActionType) => {
-          if(typeof action === 'number'){
-            return tick(s);
-          } else if (action && 'type' in action && action.type === "mouseClick"){
-            if(s.gameEnd){
-              return {
-                ...initialState,
-                scoreAndDropRate:{
-                  ...initialState.scoreAndDropRate,
-                  gameHighScore: (s.scoreAndDropRate?.gameScore as number) > (initialState.scoreAndDropRate?.gameHighScore as number)
-                                && (s.scoreAndDropRate?.gameScore as number) > (s.scoreAndDropRate?.gameHighScore as number)
-                                ? s.scoreAndDropRate?.gameScore : s.scoreAndDropRate?.gameHighScore
-                }
-              } as State;
-            }
-            return s;
-          } else if (action && 'type' in action && action.type === "instantReplay"){
+      scan<ActionType, State>((s: State, action: ActionType) => {
+        if (typeof action === "number") {
+          return tick(s);
+        } else if (action && "type" in action && action.type === "mouseClick") {
+          if (s.gameEnd) {
             return {
               ...initialState,
-              scoreAndDropRate:{
+              scoreAndDropRate: {
                 ...initialState.scoreAndDropRate,
-                gameHighScore: (s.scoreAndDropRate?.gameScore as number) > (initialState.scoreAndDropRate?.gameHighScore as number)
-                              && (s.scoreAndDropRate?.gameScore as number) > (s.scoreAndDropRate?.gameHighScore as number)
-                              ? s.scoreAndDropRate?.gameScore : s.scoreAndDropRate?.gameHighScore
-              }
+                gameHighScore:
+                  (s.scoreAndDropRate?.gameScore as number) >
+                    (initialState.scoreAndDropRate?.gameHighScore as number) &&
+                  (s.scoreAndDropRate?.gameScore as number) >
+                    (s.scoreAndDropRate?.gameHighScore as number)
+                    ? s.scoreAndDropRate?.gameScore
+                    : s.scoreAndDropRate?.gameHighScore,
+              },
             } as State;
-          } else {
-              return tick(s, action);
           }
-        }, initialState)
-      )
+          return s;
+        } else if (
+          action &&
+          "type" in action &&
+          action.type === "instantReplay"
+        ) {
+          return {
+            ...initialState,
+            scoreAndDropRate: {
+              ...initialState.scoreAndDropRate,
+              gameHighScore:
+                (s.scoreAndDropRate?.gameScore as number) >
+                  (initialState.scoreAndDropRate?.gameHighScore as number) &&
+                (s.scoreAndDropRate?.gameScore as number) >
+                  (s.scoreAndDropRate?.gameHighScore as number)
+                  ? s.scoreAndDropRate?.gameScore
+                  : s.scoreAndDropRate?.gameHighScore,
+            },
+          } as State;
+        } else {
+          return tick(s, action);
+        }
+      }, initialState)
+    )
     .subscribe((s: State) => {
       render(s);
-      
+
       if (s.gameEnd) {
         show(gameover);
         show(gameRestart);
@@ -317,8 +329,6 @@ export function main() {
         hide(gameRestart);
       }
     });
-
-
 }
 
 // The following simply runs your main function on window load.  Make sure to leave it in place.
@@ -327,7 +337,3 @@ if (typeof window !== "undefined") {
     main();
   };
 }
-
-
-
-

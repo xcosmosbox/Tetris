@@ -1,7 +1,14 @@
 /** Utility functions */
 
 import { Block, Constants, SHAPES, Viewport } from "./main";
-import { BombBlock, LightningBlock, LineBlock, RaisedBlock, SquareBlock, StarBlock } from "./state";
+import {
+  BombBlock,
+  LightningBlock,
+  LineBlock,
+  RaisedBlock,
+  SquareBlock,
+  StarBlock,
+} from "./state";
 
 const randomShape = (): GameBlock => {
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
@@ -11,13 +18,15 @@ const randomShape = (): GameBlock => {
 };
 
 // util function to simulate factory method to create the attribute for new block
-export const createNewShapeFactory = (s: State): {
+export const createNewShapeFactory = (
+  s: State
+): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
-  if(Math.random() < 0.125){
-    if(Math.random() < 0.4 && s.scoreAndDropRate?.gameLevel as number > 3){
-      return { currentBlock: randomShape(), nextBlock: new BombBlock() }
+  if (Math.random() < 0.125) {
+    if (Math.random() < 0.4 && (s.scoreAndDropRate?.gameLevel as number) > 3) {
+      return { currentBlock: randomShape(), nextBlock: new BombBlock() };
     }
     return { currentBlock: randomShape(), nextBlock: new StarBlock() };
   }
@@ -100,29 +109,42 @@ export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
 export const lineRemoved = (s: State): State => {
   // get all index of full fill row
   const fullyFilledRowIndices = s.oldGameCubes
-    .map((row, index) => (row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK) ? index : -1))
+    .map((row, index) =>
+      row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK)
+        ? index
+        : -1
+    )
     .filter((index) => index !== -1);
-  
+
   // check whether is StarBlock
   const startIndex = s.oldGameCubes
-  .map((row, index) => {
-    return fullyFilledRowIndices.includes(index) && row.some( (cell) => cell !== null && cell.shape === SHAPES.STAR ) ? index : -1;
-  })
-  .filter(index => index !== -1);
+    .map((row, index) => {
+      return fullyFilledRowIndices.includes(index) &&
+        row.some((cell) => cell !== null && cell.shape === SHAPES.STAR)
+        ? index
+        : -1;
+    })
+    .filter((index) => index !== -1);
 
   // concat new remove row
-  const newRemoveRow = [...new Set(startIndex.reduce<number[]>((acc, index) => {
-    if(index === 0){
-      return [0,1,...acc];
-    }
-    if(index === 19){
-      return [18,19,...acc];
-    }
-    return [index-1, index, index+1,...acc];
-  }, []))];
+  const newRemoveRow = [
+    ...new Set(
+      startIndex.reduce<number[]>((acc, index) => {
+        if (index === 0) {
+          return [0, 1, ...acc];
+        }
+        if (index === 19) {
+          return [18, 19, ...acc];
+        }
+        return [index - 1, index, index + 1, ...acc];
+      }, [])
+    ),
+  ];
 
   // merge final array
-  const finalRemoveRow = [...new Set([...fullyFilledRowIndices, ...newRemoveRow])];
+  const finalRemoveRow = [
+    ...new Set([...fullyFilledRowIndices, ...newRemoveRow]),
+  ];
 
   // get new 2D array exclusive full fill row
   const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
@@ -141,8 +163,7 @@ export const lineRemoved = (s: State): State => {
                   position: {
                     ...element.position,
                     y:
-                      element.position.y +
-                      finalRemoveRow.length * Block.HEIGHT,
+                      element.position.y + finalRemoveRow.length * Block.HEIGHT,
                   },
                 } as GameCube)
               : null;
@@ -157,7 +178,6 @@ export const lineRemoved = (s: State): State => {
     true,
     finalRemoveRow.length
   );
-
 };
 
 //util function to map new array
@@ -165,7 +185,7 @@ export const updateOldGameCubesUtil = (
   oldArray: GameCube[][],
   updateRow: number,
   updateCol: number,
-  newValue: (GameCube | null)
+  newValue: GameCube | null
 ): (GameCube | null)[][] => {
   // Update the array at the corresponding position according to the specified row and col.
   // Finally, a new two-dimensional array will be returned.
@@ -178,7 +198,6 @@ export const updateOldGameCubesUtil = (
     return row;
   });
 };
-
 
 // left failed
 export const leftFailed = (block: GameBlock, s: State): State => {
