@@ -1219,8 +1219,9 @@ export class LineBlock extends SimplyBlock {
   // };
 }
 
-abstract class SpecialBlock implements GameBlock {
+abstract class SpecialBlock extends SimplyBlock {
   constructor(public readonly color: string, public readonly shape: number) {
+    super();
     const newBlock: GameCube = {
       color: color,
       shape: shape,
@@ -1229,7 +1230,7 @@ abstract class SpecialBlock implements GameBlock {
     } as GameCube;
     this.cubes = [newBlock];
   }
-  cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  // cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   moveLeft = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
@@ -1315,62 +1316,62 @@ abstract class SpecialBlock implements GameBlock {
   rotate = (s: State): State => {
     return s;
   };
-  checkContinueMove = (s: State): boolean => {
-    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT) ) {
-      if (this.checkContinueDown(s, this.cubes)) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  };
+  // checkContinueMove = (s: State): boolean => {
+  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT) ) {
+  //     if (this.checkContinueDown(s, this.cubes)) {
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   } else {
+  //     return false;
+  //   }
+  // };
   checkContinueDown = (s:State, cubes: GameCube[]) => {
     return cubes.some(
       (cube) =>
       hasCollision(s, cube, "d")
     );
   }
-  updatePositions = (s: State): State => {
-    return this.moveDown(
-      s,
-      Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-    );
-  };
-  updateOldGameCubes = (s: State): State => {
-    const newOldGameCubes = this.updateOldGameCubesRec(
-      0,
-      s.oldGameCubes as GameCube[][]
-    );
-    return {
-      ...s,
-      oldGameCubes: newOldGameCubes,
-    } as State;
-  };
-  // util function to update the old game cubes by recursive method
-  updateOldGameCubesRec = (
-    index: number,
-    oldGameCubes: GameCube[][]
-  ): GameCube[][] => {
-    if (index >= this.cubes.length) {
-      return oldGameCubes;
-    }
-    const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-    if (oneCube) {
-      const oldGameCubesUpdated = updateOldGameCubesUtil(
-        oldGameCubes,
-        Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-        Math.floor((oneCube.position.x as number) / Block.WIDTH),
-        oneCube
-      );
-      return this.updateOldGameCubesRec(
-        index + 1,
-        oldGameCubesUpdated as GameCube[][]
-      );
-    }
-    return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  };
+  // updatePositions = (s: State): State => {
+  //   return this.moveDown(
+  //     s,
+  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
+  //   );
+  // };
+  // updateOldGameCubes = (s: State): State => {
+  //   const newOldGameCubes = this.updateOldGameCubesRec(
+  //     0,
+  //     s.oldGameCubes as GameCube[][]
+  //   );
+  //   return {
+  //     ...s,
+  //     oldGameCubes: newOldGameCubes,
+  //   } as State;
+  // };
+  // // util function to update the old game cubes by recursive method
+  // updateOldGameCubesRec = (
+  //   index: number,
+  //   oldGameCubes: GameCube[][]
+  // ): GameCube[][] => {
+  //   if (index >= this.cubes.length) {
+  //     return oldGameCubes;
+  //   }
+  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
+  //   if (oneCube) {
+  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
+  //       oldGameCubes,
+  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
+  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
+  //       oneCube
+  //     );
+  //     return this.updateOldGameCubesRec(
+  //       index + 1,
+  //       oldGameCubesUpdated as GameCube[][]
+  //     );
+  //   }
+  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
+  // };
 }
 
 export class StarBlock extends SpecialBlock {
