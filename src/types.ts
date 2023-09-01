@@ -49,6 +49,7 @@ interface GameBlock {
   moveDown(s: State, amount: number): State;
   rotate(s: State): State;
   checkContinueMove(s: State): boolean;
+  checkContinueDown(s: State, cubes: GameCube[]):boolean;
   updatePositions(s: State): State;
   updateOldGameCubes(s: State): State;
 }
