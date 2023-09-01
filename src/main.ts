@@ -58,6 +58,17 @@ export const SHAPES = {
   BOMB: 6,
 } as const;
 
+export const initialPosition = {
+  POSITION_0: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2), y: 0} as Position,
+  POSITION_1: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1), y: 0} as Position,
+  POSITION_2: {x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2), y:0} as Position,
+  POSITION_3: {x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1), y:0} as Position,
+  POSITION_4: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2), y: Block.HEIGHT} as Position,
+  POSITION_5: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1), y: Block.HEIGHT} as Position,
+  POSITION_6: {x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2), y:Block.HEIGHT} as Position,
+  POSITION_7: {x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1), y:Block.HEIGHT} as Position
+}
+
 /** User input */
 
 type Key = "KeyS" | "KeyA" | "KeyD" | "KeyW";

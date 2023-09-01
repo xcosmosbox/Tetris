@@ -1,4 +1,4 @@
-import { Block, Constants, SHAPES, Viewport } from "./main";
+import { Block, Constants, SHAPES, Viewport, initialPosition } from "./main";
 import {
   leftFailed,
   leftSuccess,
@@ -20,13 +20,7 @@ export class SquareBlock implements GameBlock {
     const newBlock: GameCube = {
       color: randomColor,
       shape: SHAPES.SQUARE_BLOCK,
-      position: {
-        //init position
-        x:
-          Block.WIDTH *
-          (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        y: 0,
-      },
+      position: initialPosition.POSITION_1,
       rotationID: 0,
     };
 
@@ -34,28 +28,17 @@ export class SquareBlock implements GameBlock {
       newBlock,
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: 0,
-        },
+        position: initialPosition.POSITION_2,
         rotationID: 1,
       },
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_5,
         rotationID: 2,
       },
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_6,
         rotationID: 3,
       },
     ];
