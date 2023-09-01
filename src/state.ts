@@ -128,13 +128,7 @@ export class SquareBlock implements GameBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount)) {
-      if (
-        this.cubes.some(
-          (cube) =>
-            (cube.rotationID === 2 || cube.rotationID === 3) &&
-            hasCollision(s, cube, "d")
-        )
-      ) {
+      if (this.checkContinuDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -171,23 +165,8 @@ export class SquareBlock implements GameBlock {
     return s;
   };
   checkContinueMove = (s: State): boolean => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) +
-            Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number) <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
-      if (
-        this.cubes.some(
-          (cube) =>
-            (cube.rotationID === 2 || cube.rotationID === 3) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
-        )
-      ) {
+    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
+      if (this.checkContinuDown(s, this.cubes)) {
         return false;
       } else {
         return true;
@@ -196,6 +175,9 @@ export class SquareBlock implements GameBlock {
       return false;
     }
   };
+  private checkContinuDown = (s: State, cubes: GameCube[]) => {
+    return cubes.some((cube) =>(cube.rotationID === 2 || cube.rotationID === 3) && hasCollision(s, cube, "d"))
+  }
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
@@ -327,25 +309,7 @@ export class RaisedBlock implements GameBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount)) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 &&
-              (cube.rotationID === 1 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 2 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 3)) ||
-              (this.rotationLevel === 3 &&
-                (cube.rotationID === 3 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 1 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "d")
-          );
-        })
-      ) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -363,9 +327,7 @@ export class RaisedBlock implements GameBlock {
       const oneCube = this.cubes.find((cube) => cube.rotationID === 2);
       if (
         oneCube &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT) + 1
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH)]
+        !hasCollision(s, oneCube, "d")
       ) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
@@ -402,9 +364,7 @@ export class RaisedBlock implements GameBlock {
       if (
         oneCube &&
         oneCube.position.x !== Viewport.CANVAS_WIDTH - Block.WIDTH &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) + 1]
+        !hasCollision(s, oneCube, "r")
       ) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
@@ -479,9 +439,7 @@ export class RaisedBlock implements GameBlock {
       if (
         oneCube &&
         oneCube.position.x !== 0 &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) - 1]
+        !hasCollision(s, oneCube, "l")
       ) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
@@ -517,35 +475,8 @@ export class RaisedBlock implements GameBlock {
     return s;
   };
   checkContinueMove = (s: State): boolean => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) +
-            Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number) <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 &&
-              (cube.rotationID === 1 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 2 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 3)) ||
-              (this.rotationLevel === 3 &&
-                (cube.rotationID === 3 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 1 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
-          );
-        })
-      ) {
+    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
+      if ( this.checkContinueDown(s, this.cubes)) {
         return false;
       } else {
         return true;
@@ -554,6 +485,25 @@ export class RaisedBlock implements GameBlock {
       return false;
     }
   };
+  private checkContinueDown = (s: State, cubes: GameCube[]):boolean =>{
+    return cubes.some((cube) => {
+      return (
+        ((this.rotationLevel === 1 &&
+          (cube.rotationID === 1 || cube.rotationID === 0)) ||
+          (this.rotationLevel === 2 &&
+            (cube.rotationID === 0 ||
+              cube.rotationID === 1 ||
+              cube.rotationID === 3)) ||
+          (this.rotationLevel === 3 &&
+            (cube.rotationID === 3 || cube.rotationID === 0)) ||
+          (this.rotationLevel === 0 &&
+            (cube.rotationID === 1 ||
+              cube.rotationID === 2 ||
+              cube.rotationID === 3))) &&
+              hasCollision(s, cube, "d")
+      );
+    })
+  }
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
@@ -685,25 +635,7 @@ export class LightningBlock implements GameBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount)) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 &&
-              (cube.rotationID === 2 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 2 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 3)) ||
-              (this.rotationLevel === 3 &&
-                (cube.rotationID === 3 || cube.rotationID === 1)) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "d")
-          );
-        })
-      ) {
+      if (this.checkContinueDown(s,this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -721,9 +653,7 @@ export class LightningBlock implements GameBlock {
       const oneCube = this.cubes.find((cube) => cube.rotationID === 2);
       if (
         oneCube &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) - 1] &&
+        !hasCollision(s, oneCube, "l") &&
         !s.oldGameCubes[
           Math.floor((oneCube.position.y as number) / Block.HEIGHT) + 1
         ][Math.floor((oneCube.position.x as number) / Block.WIDTH) - 1]
@@ -766,9 +696,7 @@ export class LightningBlock implements GameBlock {
       if (
         oneCube &&
         oneCube.position.x !== Viewport.CANVAS_WIDTH - Block.WIDTH &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT) + 1
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH)] &&
+        !hasCollision(s, oneCube, "d") &&
         !s.oldGameCubes[
           Math.floor((oneCube.position.y as number) / Block.HEIGHT) + 1
         ][Math.floor((oneCube.position.x as number) / Block.WIDTH) + 1]
@@ -810,9 +738,7 @@ export class LightningBlock implements GameBlock {
       const oneCube = this.cubes.find((cube) => cube.rotationID === 2);
       if (
         oneCube &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) + 1] &&
+        !hasCollision(s, oneCube, "r") &&
         !s.oldGameCubes[
           Math.floor((oneCube.position.y as number) / Block.HEIGHT) - 1
         ][Math.floor((oneCube.position.x as number) / Block.WIDTH) + 1]
@@ -900,35 +826,8 @@ export class LightningBlock implements GameBlock {
     return s;
   };
   checkContinueMove = (s: State): boolean => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) +
-            Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number) <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 &&
-              (cube.rotationID === 2 || cube.rotationID === 0)) ||
-              (this.rotationLevel === 2 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 3)) ||
-              (this.rotationLevel === 3 &&
-                (cube.rotationID === 3 || cube.rotationID === 1)) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
-          );
-        })
-      ) {
+    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
+      if (this.checkContinueDown(s,this.cubes)) {
         return false;
       } else {
         return true;
@@ -937,6 +836,25 @@ export class LightningBlock implements GameBlock {
       return false;
     }
   };
+  private checkContinueDown = (s: State, cubes: GameCube[]):boolean => {
+    return cubes.some((cube) => {
+      return (
+        ((this.rotationLevel === 1 &&
+          (cube.rotationID === 2 || cube.rotationID === 0)) ||
+          (this.rotationLevel === 2 &&
+            (cube.rotationID === 0 ||
+              cube.rotationID === 1 ||
+              cube.rotationID === 3)) ||
+          (this.rotationLevel === 3 &&
+            (cube.rotationID === 3 || cube.rotationID === 1)) ||
+          (this.rotationLevel === 0 &&
+            (cube.rotationID === 0 ||
+              cube.rotationID === 2 ||
+              cube.rotationID === 3))) &&
+              hasCollision(s, cube, "d")
+      );
+    })
+  }
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
@@ -1056,19 +974,7 @@ export class LineBlock implements GameBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount) ) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 && cube.rotationID === 3) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "d")
-          );
-        })
-      ) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -1094,9 +1000,7 @@ export class LineBlock implements GameBlock {
         !s.oldGameCubes[
           Math.floor((oneCube.position.y as number) / Block.HEIGHT) - 2
         ][Math.floor((oneCube.position.x as number) / Block.WIDTH)] &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT) + 1
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH)]
+        !hasCollision(s, oneCube, "d")
       ) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
@@ -1143,12 +1047,8 @@ export class LineBlock implements GameBlock {
         !s.oldGameCubes[
           Math.floor((oneCube.position.y as number) / Block.HEIGHT)
         ][Math.floor((oneCube.position.x as number) / Block.WIDTH) - 2] &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) - 1] &&
-        !s.oldGameCubes[
-          Math.floor((oneCube.position.y as number) / Block.HEIGHT)
-        ][Math.floor((oneCube.position.x as number) / Block.WIDTH) + 1]
+        !hasCollision(s, oneCube, "l") &&
+        !hasCollision(s, oneCube, "r")
       ) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
@@ -1191,29 +1091,8 @@ export class LineBlock implements GameBlock {
     return s;
   };
   checkContinueMove = (s: State): boolean => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) +
-            Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number) <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
-      if (
-        this.cubes.some((cube) => {
-          return (
-            ((this.rotationLevel === 1 && cube.rotationID === 3) ||
-              (this.rotationLevel === 0 &&
-                (cube.rotationID === 0 ||
-                  cube.rotationID === 1 ||
-                  cube.rotationID === 2 ||
-                  cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
-          );
-        })
-      ) {
+    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return false;
       } else {
         return true;
@@ -1222,6 +1101,19 @@ export class LineBlock implements GameBlock {
       return false;
     }
   };
+  private checkContinueDown = (s: State, cubes: GameCube[]) => {
+    return cubes.some((cube) => {
+      return (
+        ((this.rotationLevel === 1 && cube.rotationID === 3) ||
+          (this.rotationLevel === 0 &&
+            (cube.rotationID === 0 ||
+              cube.rotationID === 1 ||
+              cube.rotationID === 2 ||
+              cube.rotationID === 3))) &&
+              hasCollision(s, cube, "d")
+      );
+    })
+  }
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
@@ -1334,12 +1226,7 @@ abstract class SpecialBlock implements GameBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount)) {
-      if (
-        this.cubes.some(
-          (cube) =>
-          hasCollision(s, cube, "d")
-        )
-      ) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -1365,22 +1252,8 @@ abstract class SpecialBlock implements GameBlock {
     return s;
   };
   checkContinueMove = (s: State): boolean => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) +
-            Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number) <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
-      if (
-        this.cubes.some(
-          (cube) =>
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
-        )
-      ) {
+    if (isWithinBoundary(this.cubes, "y", Block.HEIGHT) ) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return false;
       } else {
         return true;
@@ -1389,6 +1262,12 @@ abstract class SpecialBlock implements GameBlock {
       return false;
     }
   };
+  private checkContinueDown = (s:State, cubes: GameCube[]) => {
+    return cubes.some(
+      (cube) =>
+      hasCollision(s, cube, "d")
+    );
+  }
   updatePositions = (s: State): State => {
     return this.moveDown(
       s,
