@@ -13,6 +13,7 @@ import {
   getPoints,
   randomColor,
   isWithinBoundary,
+  hasCollision,
 } from "./utils";
 
 export class SquareBlock implements GameBlock {
@@ -51,9 +52,7 @@ export class SquareBlock implements GameBlock {
         this.cubes.some(
           (cube) =>
             (cube.rotationID === 0 || cube.rotationID === 2) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+            hasCollision(s, cube, "l")
         )
       ) {
         return leftFailed(this, s);
@@ -93,9 +92,7 @@ export class SquareBlock implements GameBlock {
         this.cubes.some(
           (cube) =>
             (cube.rotationID === 1 || cube.rotationID === 3) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+            hasCollision(s, cube, "r")
         )
       ) {
         return rightFailed(this, s);
@@ -135,9 +132,7 @@ export class SquareBlock implements GameBlock {
         this.cubes.some(
           (cube) =>
             (cube.rotationID === 2 || cube.rotationID === 3) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+            hasCollision(s, cube, "d")
         )
       ) {
         return downFailed(this, s);
@@ -289,9 +284,7 @@ export class RaisedBlock implements GameBlock {
                 (cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+                  hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -320,9 +313,7 @@ export class RaisedBlock implements GameBlock {
                 (cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+                  hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -351,9 +342,7 @@ export class RaisedBlock implements GameBlock {
                 (cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+                  hasCollision(s, cube, "d")
           );
         })
       ) {
@@ -653,9 +642,7 @@ export class LightningBlock implements GameBlock {
                 (cube.rotationID === 0 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+                  hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -684,9 +671,7 @@ export class LightningBlock implements GameBlock {
                 (cube.rotationID === 0 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+                  hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -715,9 +700,7 @@ export class LightningBlock implements GameBlock {
                 (cube.rotationID === 0 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+                  hasCollision(s, cube, "d")
           );
         })
       ) {
@@ -1036,9 +1019,7 @@ export class LineBlock implements GameBlock {
                   cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+                  hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -1061,9 +1042,7 @@ export class LineBlock implements GameBlock {
                   cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+                  hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -1086,9 +1065,7 @@ export class LineBlock implements GameBlock {
                   cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+                  hasCollision(s, cube, "d")
           );
         })
       ) {
@@ -1302,9 +1279,7 @@ abstract class SpecialBlock implements GameBlock {
       if (
         this.cubes.some(
           (cube) =>
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+          hasCollision(s, cube, "l")
         )
       ) {
         return leftFailed(this, s);
@@ -1333,9 +1308,7 @@ abstract class SpecialBlock implements GameBlock {
       if (
         this.cubes.some(
           (cube) =>
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT)
-            ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+          hasCollision(s, cube, "r")
         )
       ) {
         return rightFailed(this, s);
@@ -1364,9 +1337,7 @@ abstract class SpecialBlock implements GameBlock {
       if (
         this.cubes.some(
           (cube) =>
-            s.oldGameCubes[
-              Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-            ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+          hasCollision(s, cube, "d")
         )
       ) {
         return downFailed(this, s);
