@@ -17,6 +17,11 @@ const randomShape = (): GameBlock => {
   return new blockContainer[randomIndex]();
 };
 
+export const randomColor = (): string => {
+  const colors = ["red", "green", "blue", "yellow"];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
 // util function to simulate factory method to create the attribute for new block
 export const createNewShapeFactory = (
   s: State

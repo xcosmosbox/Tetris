@@ -11,14 +11,13 @@ import {
   needLineRemove,
   lineRemoved,
   getPoints,
+  randomColor,
 } from "./utils";
 
 export class SquareBlock implements GameBlock {
   constructor() {
-    const colors = ["red", "green", "blue", "yellow"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
     const newBlock: GameCube = {
-      color: randomColor,
+      color: randomColor(),
       shape: SHAPES.SQUARE_BLOCK,
       position: initialPosition.POSITION_1,
       rotationID: 0,
@@ -256,18 +255,10 @@ export class SquareBlock implements GameBlock {
 
 export class RaisedBlock implements GameBlock {
   constructor() {
-    const colors = ["red", "green", "blue", "yellow"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
     const newBlock: GameCube = {
-      color: randomColor,
+      color: randomColor(),
       shape: SHAPES.RAISED_BLOCK,
-      position: {
-        //init position
-        x:
-          Block.WIDTH *
-          (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        y: 0,
-      },
+      position: initialPosition.POSITION_1,
       rotationID: 0,
     };
 
@@ -275,30 +266,17 @@ export class RaisedBlock implements GameBlock {
       newBlock,
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_4,
         rotationID: 1,
       },
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_5,
         rotationID: 2,
       },
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_6,
         rotationID: 3,
       },
     ];
@@ -653,18 +631,10 @@ export class RaisedBlock implements GameBlock {
 
 export class LightningBlock implements GameBlock {
   constructor() {
-    const colors = ["red", "green", "blue", "yellow"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
     const newBlock: GameCube = {
-      color: randomColor,
+      color: randomColor(),
       shape: SHAPES.LIGHTNING_BLOCK,
-      position: {
-        //init position
-        x:
-          Block.WIDTH *
-          (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        y: 0,
-      },
+      position: initialPosition.POSITION_1,
       rotationID: 0,
     };
 
@@ -672,28 +642,17 @@ export class LightningBlock implements GameBlock {
       newBlock,
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: newBlock.position.y,
-        },
+        position: initialPosition.POSITION_2,
         rotationID: 1,
       },
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_6,
         rotationID: 2,
       },
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
-          y: newBlock.position.y + Block.HEIGHT,
-        },
+        position: initialPosition.POSITION_7,
         rotationID: 3,
       },
     ];
@@ -1073,18 +1032,10 @@ export class LightningBlock implements GameBlock {
 
 export class LineBlock implements GameBlock {
   constructor() {
-    const colors = ["red", "green", "blue", "yellow"];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
     const newBlock: GameCube = {
-      color: randomColor,
+      color: randomColor(),
       shape: SHAPES.LINE_BLOCK,
-      position: {
-        //init position
-        x:
-          Block.WIDTH *
-          (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
-        y: 0,
-      },
+      position: initialPosition.POSITION_0,
       rotationID: 0,
     };
 
@@ -1092,30 +1043,17 @@ export class LineBlock implements GameBlock {
       newBlock,
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-          y: newBlock.position.y,
-        },
+        position: initialPosition.POSITION_1,
         rotationID: 1,
       },
       {
         ...newBlock,
-        position: {
-          x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-          y: newBlock.position.y,
-        },
+        position: initialPosition.POSITION_2,
         rotationID: 2,
       },
       {
         ...newBlock,
-        position: {
-          x:
-            Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
-          y: newBlock.position.y,
-        },
+        position: initialPosition.POSITION_3,
         rotationID: 3,
       },
     ];
@@ -1400,19 +1338,7 @@ abstract class SpecialBlock implements GameBlock {
     const newBlock: GameCube = {
       color: color,
       shape: shape,
-      position: {
-        x:
-          Block.WIDTH *
-          (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        y: 0,
-      },
-      svgCoordinates: {
-        index_x: 0,
-        index_y:
-          Viewport.CANVAS_WIDTH /
-          (Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
-      },
+      position: initialPosition.POSITION_1,
       rotationID: 0,
     } as GameCube;
     this.cubes = [newBlock];
