@@ -5,7 +5,7 @@ type Position = Readonly<{
 
 type GameCube = Readonly<{
   color: string;
-  shape: number; // TODO: Change to SHAPE type, when i finished the basic feature
+  shape: number;
   position: Position;
   rotationID: number;
 }>;
@@ -49,7 +49,7 @@ interface GameBlock {
   moveDown(s: State, amount: number): State;
   rotate(s: State): State;
   checkContinueMove(s: State): boolean;
-  checkContinueDown(s: State, cubes: GameCube[]):boolean;
+  checkContinueDown(s: State, cubes: GameCube[]): boolean;
   updatePositions(s: State): State;
   updateOldGameCubes(s: State): State;
 }

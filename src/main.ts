@@ -18,16 +18,6 @@ import { BehaviorSubject, from, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 import { tick } from "./state";
 
-// /**
-//  * ONLY FOR TEST
-//  */
-// const print = (message:any) =>{
-//   console.log(message);
-// }
-// /**
-//  * ONLY FOR TEST
-//  */
-
 /** Constants */
 export const Viewport = {
   CANVAS_WIDTH: 200,
@@ -59,15 +49,39 @@ export const SHAPES = {
 } as const;
 
 export const initialPosition = {
-  POSITION_0: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2), y: 0} as Position,
-  POSITION_1: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1), y: 0} as Position,
-  POSITION_2: {x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2), y:0} as Position,
-  POSITION_3: {x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1), y:0} as Position,
-  POSITION_4: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2), y: Block.HEIGHT} as Position,
-  POSITION_5: {x: Block.WIDTH *(Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1), y: Block.HEIGHT} as Position,
-  POSITION_6: {x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2), y:Block.HEIGHT} as Position,
-  POSITION_7: {x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1), y:Block.HEIGHT} as Position
-}
+  POSITION_0: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
+    y: 0,
+  } as Position,
+  POSITION_1: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
+    y: 0,
+  } as Position,
+  POSITION_2: {
+    x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
+    y: 0,
+  } as Position,
+  POSITION_3: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
+    y: 0,
+  } as Position,
+  POSITION_4: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
+    y: Block.HEIGHT,
+  } as Position,
+  POSITION_5: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
+    y: Block.HEIGHT,
+  } as Position,
+  POSITION_6: {
+    x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
+    y: Block.HEIGHT,
+  } as Position,
+  POSITION_7: {
+    x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
+    y: Block.HEIGHT,
+  } as Position,
+};
 
 /** User input */
 
@@ -258,22 +272,12 @@ export function main() {
     // render current block
     if (s.currentGameCube) {
       s.currentGameCube.cubes.forEach((cube) => renderChildToSvg(cube));
-      // renderChildToSvg(s.currentGameCube);
     }
 
     // render other blocks
     if (s.oldGameCubes) {
       s.oldGameCubes.map((row) => row.map(renderChildToSvg));
     }
-
-    // const cube = createSvgElement(svg.namespaceURI, "rect", {
-    //   height: `${Block.HEIGHT}`,
-    //   width: `${Block.WIDTH}`,
-    //   x: `0`,
-    //   y: `0`,
-    //   style: "fill: "+`rgba(128, 109, 158, 0.7)`,
-    // });
-    // svg.appendChild(cube);
   };
 
   const source$ = merge(

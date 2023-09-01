@@ -34,12 +34,9 @@ abstract class SimplyBlock implements GameBlock {
       return false;
     }
   };
-  abstract checkContinueDown(s: State, cubes: GameCube[]):boolean;
+  abstract checkContinueDown(s: State, cubes: GameCube[]): boolean;
   updatePositions = (s: State): State => {
-    return this.moveDown(
-      s,
-      Block.HEIGHT
-    );
+    return this.moveDown(s, Block.HEIGHT);
   };
   updateOldGameCubes = (s: State): State => {
     const newOldGameCubes = this.updateOldGameCubesRec(
@@ -76,10 +73,9 @@ abstract class SimplyBlock implements GameBlock {
   };
 }
 
-
 export class SquareBlock extends SimplyBlock {
   constructor() {
-    super()
+    super();
     const newBlock: GameCube = {
       color: randomColor(),
       shape: SHAPES.SQUARE_BLOCK,
@@ -226,8 +222,12 @@ export class SquareBlock extends SimplyBlock {
     return s;
   };
   checkContinueDown = (s: State, cubes: GameCube[]) => {
-    return cubes.some((cube) =>(cube.rotationID === 2 || cube.rotationID === 3) && hasCollision(s, cube, "d"))
-  }
+    return cubes.some(
+      (cube) =>
+        (cube.rotationID === 2 || cube.rotationID === 3) &&
+        hasCollision(s, cube, "d")
+    );
+  };
 }
 
 export class RaisedBlock extends SimplyBlock {
@@ -278,7 +278,7 @@ export class RaisedBlock extends SimplyBlock {
                 (cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "l")
+            hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -307,7 +307,7 @@ export class RaisedBlock extends SimplyBlock {
                 (cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "r")
+            hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -337,10 +337,7 @@ export class RaisedBlock extends SimplyBlock {
     );
     if (this.rotationLevel === 0) {
       const oneCube = this.cubes.find((cube) => cube.rotationID === 2);
-      if (
-        oneCube &&
-        !hasCollision(s, oneCube, "d")
-      ) {
+      if (oneCube && !hasCollision(s, oneCube, "d")) {
         // rotate success
         const newCubes = this.cubes.map((cube) => {
           if (cube.rotationID === 0) {
@@ -486,7 +483,7 @@ export class RaisedBlock extends SimplyBlock {
     }
     return s;
   };
-  checkContinueDown = (s: State, cubes: GameCube[]):boolean =>{
+  checkContinueDown = (s: State, cubes: GameCube[]): boolean => {
     return cubes.some((cube) => {
       return (
         ((this.rotationLevel === 1 &&
@@ -501,10 +498,10 @@ export class RaisedBlock extends SimplyBlock {
             (cube.rotationID === 1 ||
               cube.rotationID === 2 ||
               cube.rotationID === 3))) &&
-              hasCollision(s, cube, "d")
+        hasCollision(s, cube, "d")
       );
-    })
-  }
+    });
+  };
 }
 
 export class LightningBlock extends SimplyBlock {
@@ -555,7 +552,7 @@ export class LightningBlock extends SimplyBlock {
                 (cube.rotationID === 0 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "l")
+            hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -584,7 +581,7 @@ export class LightningBlock extends SimplyBlock {
                 (cube.rotationID === 0 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "r")
+            hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -598,7 +595,7 @@ export class LightningBlock extends SimplyBlock {
   };
   moveDown = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "y", amount)) {
-      if (this.checkContinueDown(s,this.cubes)) {
+      if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
         return downSuccess(this, s, amount);
@@ -788,7 +785,7 @@ export class LightningBlock extends SimplyBlock {
 
     return s;
   };
-  checkContinueDown = (s: State, cubes: GameCube[]):boolean => {
+  checkContinueDown = (s: State, cubes: GameCube[]): boolean => {
     return cubes.some((cube) => {
       return (
         ((this.rotationLevel === 1 &&
@@ -803,10 +800,10 @@ export class LightningBlock extends SimplyBlock {
             (cube.rotationID === 0 ||
               cube.rotationID === 2 ||
               cube.rotationID === 3))) &&
-              hasCollision(s, cube, "d")
+        hasCollision(s, cube, "d")
       );
-    })
-  }
+    });
+  };
 }
 
 export class LineBlock extends SimplyBlock {
@@ -851,7 +848,7 @@ export class LineBlock extends SimplyBlock {
                   cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "l")
+            hasCollision(s, cube, "l")
           );
         })
       ) {
@@ -874,7 +871,7 @@ export class LineBlock extends SimplyBlock {
                   cube.rotationID === 1 ||
                   cube.rotationID === 2 ||
                   cube.rotationID === 3))) &&
-                  hasCollision(s, cube, "r")
+            hasCollision(s, cube, "r")
           );
         })
       ) {
@@ -887,7 +884,7 @@ export class LineBlock extends SimplyBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (isWithinBoundary(this.cubes, "y", amount) ) {
+    if (isWithinBoundary(this.cubes, "y", amount)) {
       if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
@@ -1013,10 +1010,10 @@ export class LineBlock extends SimplyBlock {
               cube.rotationID === 1 ||
               cube.rotationID === 2 ||
               cube.rotationID === 3))) &&
-              hasCollision(s, cube, "d")
+        hasCollision(s, cube, "d")
       );
-    })
-  }
+    });
+  };
 }
 
 abstract class SpecialBlock extends SimplyBlock {
@@ -1033,12 +1030,7 @@ abstract class SpecialBlock extends SimplyBlock {
   // cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   moveLeft = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "x", amount)) {
-      if (
-        this.cubes.some(
-          (cube) =>
-          hasCollision(s, cube, "l")
-        )
-      ) {
+      if (this.cubes.some((cube) => hasCollision(s, cube, "l"))) {
         return leftFailed(this, s);
       } else {
         return leftSuccess(this, s, amount);
@@ -1062,12 +1054,7 @@ abstract class SpecialBlock extends SimplyBlock {
   };
   moveRight = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "x", amount)) {
-      if (
-        this.cubes.some(
-          (cube) =>
-          hasCollision(s, cube, "r")
-        )
-      ) {
+      if (this.cubes.some((cube) => hasCollision(s, cube, "r"))) {
         return rightFailed(this, s);
       } else {
         return rightSuccess(this, s, amount);
@@ -1116,12 +1103,9 @@ abstract class SpecialBlock extends SimplyBlock {
   rotate = (s: State): State => {
     return s;
   };
-  checkContinueDown = (s:State, cubes: GameCube[]) => {
-    return cubes.some(
-      (cube) =>
-      hasCollision(s, cube, "d")
-    );
-  }
+  checkContinueDown = (s: State, cubes: GameCube[]) => {
+    return cubes.some((cube) => hasCollision(s, cube, "d"));
+  };
 }
 
 export class StarBlock extends SpecialBlock {

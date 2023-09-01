@@ -20,7 +20,7 @@ const randomShape = (): GameBlock => {
 export const randomColor = (): string => {
   const colors = ["red", "green", "blue", "yellow"];
   return colors[Math.floor(Math.random() * colors.length)];
-}
+};
 
 // util function to simulate factory method to create the attribute for new block
 export const createNewShapeFactory = (
@@ -204,25 +204,43 @@ export const updateOldGameCubesUtil = (
   });
 };
 
-export const isWithinBoundary = (cubes: GameCube[], direction:string, amount:number):boolean => {
-  if(direction === "x" && amount < 0){
+export const isWithinBoundary = (
+  cubes: GameCube[],
+  direction: string,
+  amount: number
+): boolean => {
+  if (direction === "x" && amount < 0) {
     return cubes.every((cube) => (cube.position.x as number) + amount >= 0);
   }
-  if(direction === "x" && amount > 0){
-    return cubes.every((cube) =>(cube.position.x as number) + amount <=Viewport.CANVAS_WIDTH - Block.WIDTH);
+  if (direction === "x" && amount > 0) {
+    return cubes.every(
+      (cube) =>
+        (cube.position.x as number) + amount <=
+        Viewport.CANVAS_WIDTH - Block.WIDTH
+    );
   }
-  return cubes.every((cube) => (cube.position.y as number) + amount <=Viewport.CANVAS_HEIGHT - Block.HEIGHT);
-}
+  return cubes.every(
+    (cube) =>
+      (cube.position.y as number) + amount <=
+      Viewport.CANVAS_HEIGHT - Block.HEIGHT
+  );
+};
 
-export const hasCollision = (s:State, cube: GameCube, direction: string) => {
-  if(direction === "l"){
-    return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT)][Math.floor((cube.position.x as number) / Block.WIDTH) - 1];
+export const hasCollision = (s: State, cube: GameCube, direction: string) => {
+  if (direction === "l") {
+    return s.oldGameCubes[
+      Math.floor((cube.position.y as number) / Block.HEIGHT)
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1];
   }
-  if(direction === "r"){
-    return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT)][Math.floor((cube.position.x as number) / Block.WIDTH) + 1];
+  if (direction === "r") {
+    return s.oldGameCubes[
+      Math.floor((cube.position.y as number) / Block.HEIGHT)
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1];
   }
-  return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT) + 1][Math.floor((cube.position.x as number) / Block.WIDTH)];
-}
+  return s.oldGameCubes[
+    Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
+  ][Math.floor((cube.position.x as number) / Block.WIDTH)];
+};
 
 // left failed
 export const leftFailed = (block: GameBlock, s: State): State => {
@@ -264,7 +282,6 @@ export const leftSuccess = (
   } as State;
 };
 
-// v:2.0
 // move right failed
 export const rightFailed = (block: GameBlock, s: State): State => {
   const newCubes = block.cubes.map((cube) => {
