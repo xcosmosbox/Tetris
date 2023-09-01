@@ -12,6 +12,7 @@ import {
   lineRemoved,
   getPoints,
   randomColor,
+  isWithinBoundary,
 } from "./utils";
 
 export class SquareBlock implements GameBlock {
@@ -45,7 +46,7 @@ export class SquareBlock implements GameBlock {
 
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   moveLeft = (s: State, amount: number): State => {
-    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some(
           (cube) =>
@@ -87,13 +88,7 @@ export class SquareBlock implements GameBlock {
     }
   };
   moveRight = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.x as number) + amount <=
-          Viewport.CANVAS_WIDTH - Block.WIDTH
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some(
           (cube) =>
@@ -135,13 +130,7 @@ export class SquareBlock implements GameBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) + amount <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "y", amount)) {
       if (
         this.cubes.some(
           (cube) =>
@@ -284,7 +273,7 @@ export class RaisedBlock implements GameBlock {
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   rotationLevel: number = 0;
   moveLeft = (s: State, amount: number): State => {
-    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -315,13 +304,7 @@ export class RaisedBlock implements GameBlock {
     }
   };
   moveRight = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.x as number) + amount <=
-          Viewport.CANVAS_WIDTH - Block.WIDTH
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -352,13 +335,7 @@ export class RaisedBlock implements GameBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) + amount <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "y", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -660,7 +637,7 @@ export class LightningBlock implements GameBlock {
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   rotationLevel: number = 0;
   moveLeft = (s: State, amount: number): State => {
-    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -691,13 +668,7 @@ export class LightningBlock implements GameBlock {
     }
   };
   moveRight = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.x as number) + amount <=
-          Viewport.CANVAS_WIDTH - Block.WIDTH
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -728,13 +699,7 @@ export class LightningBlock implements GameBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) + amount <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "y", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -1061,7 +1026,7 @@ export class LineBlock implements GameBlock {
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   rotationLevel: number = 0;
   moveLeft = (s: State, amount: number): State => {
-    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -1086,13 +1051,7 @@ export class LineBlock implements GameBlock {
     }
   };
   moveRight = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.x as number) + amount <=
-          Viewport.CANVAS_WIDTH - Block.WIDTH
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -1117,13 +1076,7 @@ export class LineBlock implements GameBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) + amount <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "y", amount) ) {
       if (
         this.cubes.some((cube) => {
           return (
@@ -1345,7 +1298,7 @@ abstract class SpecialBlock implements GameBlock {
   }
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   moveLeft = (s: State, amount: number): State => {
-    if (this.cubes.every((cube) => (cube.position.x as number) + amount >= 0)) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some(
           (cube) =>
@@ -1376,13 +1329,7 @@ abstract class SpecialBlock implements GameBlock {
     }
   };
   moveRight = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.x as number) + amount <=
-          Viewport.CANVAS_WIDTH - Block.WIDTH
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
         this.cubes.some(
           (cube) =>
@@ -1413,13 +1360,7 @@ abstract class SpecialBlock implements GameBlock {
     }
   };
   moveDown = (s: State, amount: number): State => {
-    if (
-      this.cubes.every(
-        (cube) =>
-          (cube.position.y as number) + amount <=
-          Viewport.CANVAS_HEIGHT - Block.HEIGHT
-      )
-    ) {
+    if (isWithinBoundary(this.cubes, "y", amount)) {
       if (
         this.cubes.some(
           (cube) =>

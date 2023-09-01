@@ -204,6 +204,26 @@ export const updateOldGameCubesUtil = (
   });
 };
 
+export const isWithinBoundary = (cubes: GameCube[], direction:string, amount:number):boolean => {
+  if(direction === "x" && amount < 0){
+    return cubes.every((cube) => (cube.position.x as number) + amount >= 0);
+  }
+  if(direction === "x" && amount > 0){
+    return cubes.every((cube) =>(cube.position.x as number) + amount <=Viewport.CANVAS_WIDTH - Block.WIDTH);
+  }
+  return cubes.every((cube) => (cube.position.y as number) + amount <=Viewport.CANVAS_HEIGHT - Block.HEIGHT);
+}
+
+export const hasCollision = (s:State, cube: GameCube, direction: string) => {
+  if(direction === "l"){
+    return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT)][Math.floor((cube.position.x as number) / Block.WIDTH) - 1];
+  }
+  if(direction === "r"){
+    return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT)][Math.floor((cube.position.x as number) / Block.WIDTH) + 1];
+  }
+  return s.oldGameCubes[Math.floor((cube.position.y as number) / Block.HEIGHT) + 1][Math.floor((cube.position.x as number) / Block.WIDTH)];
+}
+
 // left failed
 export const leftFailed = (block: GameBlock, s: State): State => {
   const newCubes = block.cubes.map((cube) => {
