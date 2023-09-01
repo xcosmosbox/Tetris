@@ -7,7 +7,6 @@ type GameCube = Readonly<{
   color: string;
   shape: number; // TODO: Change to SHAPE type, when i finished the basic feature
   position: Position;
-  svgCoordinates: SvgCoordinate;
   rotationID: number;
 }>;
 

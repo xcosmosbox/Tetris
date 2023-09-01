@@ -27,13 +27,6 @@ export class SquareBlock implements GameBlock {
           (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
         y: 0,
       },
-      svgCoordinates: {
-        index_x: 0,
-        index_y:
-          Viewport.CANVAS_WIDTH /
-          (Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
-      },
       rotationID: 0,
     };
 
@@ -45,12 +38,6 @@ export class SquareBlock implements GameBlock {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: 0,
         },
-        svgCoordinates: {
-          index_x: 0,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-        },
         rotationID: 1,
       },
       {
@@ -61,13 +48,6 @@ export class SquareBlock implements GameBlock {
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
           y: newBlock.position.y + Block.HEIGHT,
         },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            Viewport.CANVAS_WIDTH /
-            (Block.WIDTH *
-              (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
-        },
         rotationID: 2,
       },
       {
@@ -75,12 +55,6 @@ export class SquareBlock implements GameBlock {
         position: {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: newBlock.position.y + Block.HEIGHT,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
         },
         rotationID: 3,
       },
@@ -311,13 +285,6 @@ export class RaisedBlock implements GameBlock {
           (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
         y: 0,
       },
-      svgCoordinates: {
-        index_x: 0,
-        index_y:
-          Viewport.CANVAS_WIDTH /
-          (Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
-      },
       rotationID: 0,
     };
 
@@ -331,12 +298,6 @@ export class RaisedBlock implements GameBlock {
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
           y: newBlock.position.y + Block.HEIGHT,
         },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
-        },
         rotationID: 1,
       },
       {
@@ -347,12 +308,6 @@ export class RaisedBlock implements GameBlock {
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
           y: newBlock.position.y + Block.HEIGHT,
         },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        },
         rotationID: 2,
       },
       {
@@ -360,12 +315,6 @@ export class RaisedBlock implements GameBlock {
         position: {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: newBlock.position.y + Block.HEIGHT,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
         },
         rotationID: 3,
       },
@@ -733,13 +682,6 @@ export class LightningBlock implements GameBlock {
           (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
         y: 0,
       },
-      svgCoordinates: {
-        index_x: 0,
-        index_y:
-          Viewport.CANVAS_WIDTH /
-          (Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1)),
-      },
       rotationID: 0,
     };
 
@@ -751,12 +693,6 @@ export class LightningBlock implements GameBlock {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: newBlock.position.y,
         },
-        svgCoordinates: {
-          index_x: 0,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
-        },
         rotationID: 1,
       },
       {
@@ -764,12 +700,6 @@ export class LightningBlock implements GameBlock {
         position: {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: newBlock.position.y + Block.HEIGHT,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
         },
         rotationID: 2,
       },
@@ -780,12 +710,6 @@ export class LightningBlock implements GameBlock {
             Block.WIDTH *
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
           y: newBlock.position.y + Block.HEIGHT,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
         },
         rotationID: 3,
       },
@@ -1178,13 +1102,6 @@ export class LineBlock implements GameBlock {
           (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
         y: 0,
       },
-      svgCoordinates: {
-        index_x: 0,
-        index_y:
-          Viewport.CANVAS_WIDTH /
-          (Block.WIDTH *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2)),
-      },
       rotationID: 0,
     };
 
@@ -1198,12 +1115,6 @@ export class LineBlock implements GameBlock {
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
           y: newBlock.position.y,
         },
-        svgCoordinates: {
-          index_x: 0,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 1),
-        },
         rotationID: 1,
       },
       {
@@ -1211,12 +1122,6 @@ export class LineBlock implements GameBlock {
         position: {
           x: Block.WIDTH * Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
           y: newBlock.position.y,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2),
         },
         rotationID: 2,
       },
@@ -1227,12 +1132,6 @@ export class LineBlock implements GameBlock {
             Block.WIDTH *
             (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
           y: newBlock.position.y,
-        },
-        svgCoordinates: {
-          index_x: 1,
-          index_y:
-            (Viewport.CANVAS_WIDTH / Block.WIDTH) *
-            (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) + 1),
         },
         rotationID: 3,
       },
