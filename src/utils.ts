@@ -1,7 +1,7 @@
 /** Utility functions */
 
 import { Block, Constants, SHAPES, Viewport } from "./main";
-import { LightningBlock, LineBlock, RaisedBlock, SquareBlock } from "./state";
+import { LightningBlock, LineBlock, RaisedBlock, SquareBlock, StarBlock } from "./state";
 
 const randomShape = (): GameBlock => {
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
@@ -15,8 +15,8 @@ export const createNewShapeFactory = (): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
-  if(Math.random() < 0.5){
-    return { currentBlock: randomShape(), nextBlock: randomShape() };
+  if(Math.random() < 0.15){
+    return { currentBlock: randomShape(), nextBlock: new StarBlock() };
   }
   return { currentBlock: randomShape(), nextBlock: randomShape() };
 };
@@ -99,18 +99,39 @@ export const lineRemoved = (s: State): State => {
   const fullyFilledRowIndices = s.oldGameCubes
     .map((row, index) => (row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK) ? index : -1))
     .filter((index) => index !== -1);
+  
+  // check whether is StarBlock
+  const startIndex = s.oldGameCubes
+  .map((row, index) => {
+    return fullyFilledRowIndices.includes(index) && row.some( (cell) => cell !== null && cell.shape === SHAPES.STAR ) ? index : -1;
+  })
+  .filter(index => index !== -1);
+
+  // concat new remove row
+  const newRemoveRow = [...new Set(startIndex.reduce<number[]>((acc, index) => {
+    if(index === 0){
+      return [0,1,...acc];
+    }
+    if(index === 19){
+      return [18,19,...acc];
+    }
+    return [index-1, index, index+1,...acc];
+  }, []))];
+
+  // merge final array
+  const finalRemoveRow = [...new Set([...fullyFilledRowIndices, ...newRemoveRow])];
 
   // get new 2D array exclusive full fill row
   const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
-    return fullyFilledRowIndices.includes(rowIndex)
+    return finalRemoveRow.includes(rowIndex)
       ? new Array(row.length).fill(null)
       : row;
   });
 
   const moveDownMatrix = clearedCanvas.map((row, index) => {
-    if (index <= Math.max(...fullyFilledRowIndices)) {
-      return index - fullyFilledRowIndices.length >= 0
-        ? clearedCanvas[index - fullyFilledRowIndices.length].map((element) => {
+    if (index <= Math.max(...finalRemoveRow)) {
+      return index - finalRemoveRow.length >= 0
+        ? clearedCanvas[index - finalRemoveRow.length].map((element) => {
             return element
               ? ({
                   ...element,
@@ -118,7 +139,7 @@ export const lineRemoved = (s: State): State => {
                     ...element.position,
                     y:
                       element.position.y +
-                      fullyFilledRowIndices.length * Block.HEIGHT,
+                      finalRemoveRow.length * Block.HEIGHT,
                   },
                 } as GameCube)
               : null;
@@ -131,13 +152,9 @@ export const lineRemoved = (s: State): State => {
   return getPoints(
     { ...s, oldGameCubes: moveDownMatrix },
     true,
-    fullyFilledRowIndices.length
+    finalRemoveRow.length
   );
 
-  // const newScore = s.scoreAndDropRate?.gameScore as number + 100 * fullyFilledRowIndices.length;
-  // const newLevel = Math.floor(newScore / 1000) + 1;
-  // const newHightScore = newScore > (s.scoreAndDropRate?.gameHighScore as number) ? newScore : s.scoreAndDropRate?.gameHighScore as number;
-  // const newDropRate = newLevel;
 };
 
 //util function to map new array

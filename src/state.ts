@@ -1,3 +1,4 @@
+
 import { Block, Constants, SHAPES, Viewport } from "./main";
 import {
   leftFailed,
@@ -1502,11 +1503,11 @@ export class LineBlock implements GameBlock {
 }
 
 
-export class StarBlock implements GameBlock {
-  constructor(){
+abstract class SpecialBlock implements GameBlock {
+  constructor(public readonly color:string, public readonly shape: number){
     const newBlock: GameCube = {
-      color: "rgba(128, 109, 158, 0.6)",
-      shape: SHAPES.STAR,
+      color: color,
+      shape: shape,
       position: {
         x:
           Block.WIDTH *
@@ -1687,6 +1688,19 @@ export class StarBlock implements GameBlock {
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
+}
+
+export class StarBlock extends SpecialBlock{
+      //"rgba(128, 109, 158, 0.6)",
+  constructor(){
+    super("rgba(128, 109, 158, 0.6)", SHAPES.STAR);
+  }
+}
+
+export class BedrockBlock extends SpecialBlock{
+  constructor(){
+    super("gray", SHAPES.BEDROCK);
+  }
 }
 
 /**
