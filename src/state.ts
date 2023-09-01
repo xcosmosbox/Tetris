@@ -76,6 +76,7 @@ abstract class SimplyBlock implements GameBlock {
   };
 }
 
+
 export class SquareBlock extends SimplyBlock {
   constructor() {
     super()
@@ -106,7 +107,6 @@ export class SquareBlock extends SimplyBlock {
     ];
   }
 
-  // cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
   moveLeft = (s: State, amount: number): State => {
     if (isWithinBoundary(this.cubes, "x", amount)) {
       if (
@@ -225,59 +225,9 @@ export class SquareBlock extends SimplyBlock {
     // Square block does not have ration change
     return s;
   };
-  // checkContinueMove = (s: State): boolean => {
-  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
-  //     if (this.checkContinueDown(s, this.cubes)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // };
   checkContinueDown = (s: State, cubes: GameCube[]) => {
     return cubes.some((cube) =>(cube.rotationID === 2 || cube.rotationID === 3) && hasCollision(s, cube, "d"))
   }
-  // updatePositions = (s: State): State => {
-  //   return this.moveDown(
-  //     s,
-  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-  //   );
-  // };
-  // updateOldGameCubes = (s: State): State => {
-  //   const newOldGameCubes = this.updateOldGameCubesRec(
-  //     0,
-  //     s.oldGameCubes as GameCube[][]
-  //   );
-  //   return {
-  //     ...s,
-  //     oldGameCubes: newOldGameCubes,
-  //   } as State;
-  // };
-  // // util function to update the old game cubes by recursive method
-  // updateOldGameCubesRec = (
-  //   index: number,
-  //   oldGameCubes: GameCube[][]
-  // ): GameCube[][] => {
-  //   if (index >= this.cubes.length) {
-  //     return oldGameCubes;
-  //   }
-  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-  //   if (oneCube) {
-  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
-  //       oldGameCubes,
-  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
-  //       oneCube
-  //     );
-  //     return this.updateOldGameCubesRec(
-  //       index + 1,
-  //       oldGameCubesUpdated as GameCube[][]
-  //     );
-  //   }
-  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  // };
 }
 
 export class RaisedBlock extends SimplyBlock {
@@ -536,17 +486,6 @@ export class RaisedBlock extends SimplyBlock {
     }
     return s;
   };
-  // checkContinueMove = (s: State): boolean => {
-  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
-  //     if ( this.checkContinueDown(s, this.cubes)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // };
   checkContinueDown = (s: State, cubes: GameCube[]):boolean =>{
     return cubes.some((cube) => {
       return (
@@ -566,45 +505,6 @@ export class RaisedBlock extends SimplyBlock {
       );
     })
   }
-  // updatePositions = (s: State): State => {
-  //   return this.moveDown(
-  //     s,
-  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-  //   );
-  // };
-  // updateOldGameCubes = (s: State): State => {
-  //   const newOldGameCubes = this.updateOldGameCubesRec(
-  //     0,
-  //     s.oldGameCubes as GameCube[][]
-  //   );
-  //   return {
-  //     ...s,
-  //     oldGameCubes: newOldGameCubes,
-  //   } as State;
-  // };
-  // // util function to update the old game cubes by recursive method
-  // updateOldGameCubesRec = (
-  //   index: number,
-  //   oldGameCubes: GameCube[][]
-  // ): GameCube[][] => {
-  //   if (index >= this.cubes.length) {
-  //     return oldGameCubes;
-  //   }
-  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-  //   if (oneCube) {
-  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
-  //       oldGameCubes,
-  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
-  //       oneCube
-  //     );
-  //     return this.updateOldGameCubesRec(
-  //       index + 1,
-  //       oldGameCubesUpdated as GameCube[][]
-  //     );
-  //   }
-  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  // };
 }
 
 export class LightningBlock extends SimplyBlock {
@@ -888,17 +788,6 @@ export class LightningBlock extends SimplyBlock {
 
     return s;
   };
-  // checkContinueMove = (s: State): boolean => {
-  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
-  //     if (this.checkContinueDown(s,this.cubes)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // };
   checkContinueDown = (s: State, cubes: GameCube[]):boolean => {
     return cubes.some((cube) => {
       return (
@@ -918,45 +807,6 @@ export class LightningBlock extends SimplyBlock {
       );
     })
   }
-  // updatePositions = (s: State): State => {
-  //   return this.moveDown(
-  //     s,
-  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-  //   );
-  // };
-  // updateOldGameCubes = (s: State): State => {
-  //   const newOldGameCubes = this.updateOldGameCubesRec(
-  //     0,
-  //     s.oldGameCubes as GameCube[][]
-  //   );
-  //   return {
-  //     ...s,
-  //     oldGameCubes: newOldGameCubes,
-  //   } as State;
-  // };
-  // // util function to update the old game cubes by recursive method
-  // updateOldGameCubesRec = (
-  //   index: number,
-  //   oldGameCubes: GameCube[][]
-  // ): GameCube[][] => {
-  //   if (index >= this.cubes.length) {
-  //     return oldGameCubes;
-  //   }
-  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-  //   if (oneCube) {
-  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
-  //       oldGameCubes,
-  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
-  //       oneCube
-  //     );
-  //     return this.updateOldGameCubesRec(
-  //       index + 1,
-  //       oldGameCubesUpdated as GameCube[][]
-  //     );
-  //   }
-  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  // };
 }
 
 export class LineBlock extends SimplyBlock {
@@ -1154,17 +1004,6 @@ export class LineBlock extends SimplyBlock {
 
     return s;
   };
-  // checkContinueMove = (s: State): boolean => {
-  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT)) {
-  //     if (this.checkContinueDown(s, this.cubes)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // };
   checkContinueDown = (s: State, cubes: GameCube[]) => {
     return cubes.some((cube) => {
       return (
@@ -1178,45 +1017,6 @@ export class LineBlock extends SimplyBlock {
       );
     })
   }
-  // updatePositions = (s: State): State => {
-  //   return this.moveDown(
-  //     s,
-  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-  //   );
-  // };
-  // updateOldGameCubes = (s: State): State => {
-  //   const newOldGameCubes = this.updateOldGameCubesRec(
-  //     0,
-  //     s.oldGameCubes as GameCube[][]
-  //   );
-  //   return {
-  //     ...s,
-  //     oldGameCubes: newOldGameCubes,
-  //   } as State;
-  // };
-  // // util function to update the old game cubes by recursive method
-  // updateOldGameCubesRec = (
-  //   index: number,
-  //   oldGameCubes: GameCube[][]
-  // ): GameCube[][] => {
-  //   if (index >= this.cubes.length) {
-  //     return oldGameCubes;
-  //   }
-  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-  //   if (oneCube) {
-  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
-  //       oldGameCubes,
-  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
-  //       oneCube
-  //     );
-  //     return this.updateOldGameCubesRec(
-  //       index + 1,
-  //       oldGameCubesUpdated as GameCube[][]
-  //     );
-  //   }
-  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  // };
 }
 
 abstract class SpecialBlock extends SimplyBlock {
@@ -1316,62 +1116,12 @@ abstract class SpecialBlock extends SimplyBlock {
   rotate = (s: State): State => {
     return s;
   };
-  // checkContinueMove = (s: State): boolean => {
-  //   if (isWithinBoundary(this.cubes, "y", Block.HEIGHT) ) {
-  //     if (this.checkContinueDown(s, this.cubes)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // };
   checkContinueDown = (s:State, cubes: GameCube[]) => {
     return cubes.some(
       (cube) =>
       hasCollision(s, cube, "d")
     );
   }
-  // updatePositions = (s: State): State => {
-  //   return this.moveDown(
-  //     s,
-  //     Block.HEIGHT * (s.scoreAndDropRate?.dropRate as number)
-  //   );
-  // };
-  // updateOldGameCubes = (s: State): State => {
-  //   const newOldGameCubes = this.updateOldGameCubesRec(
-  //     0,
-  //     s.oldGameCubes as GameCube[][]
-  //   );
-  //   return {
-  //     ...s,
-  //     oldGameCubes: newOldGameCubes,
-  //   } as State;
-  // };
-  // // util function to update the old game cubes by recursive method
-  // updateOldGameCubesRec = (
-  //   index: number,
-  //   oldGameCubes: GameCube[][]
-  // ): GameCube[][] => {
-  //   if (index >= this.cubes.length) {
-  //     return oldGameCubes;
-  //   }
-  //   const oneCube = this.cubes.find((cube) => cube.rotationID === index);
-  //   if (oneCube) {
-  //     const oldGameCubesUpdated = updateOldGameCubesUtil(
-  //       oldGameCubes,
-  //       Math.floor((oneCube.position.y as number) / Block.HEIGHT),
-  //       Math.floor((oneCube.position.x as number) / Block.WIDTH),
-  //       oneCube
-  //     );
-  //     return this.updateOldGameCubesRec(
-  //       index + 1,
-  //       oldGameCubesUpdated as GameCube[][]
-  //     );
-  //   }
-  //   return this.updateOldGameCubesRec(index + 1, oldGameCubes);
-  // };
 }
 
 export class StarBlock extends SpecialBlock {
@@ -1440,10 +1190,6 @@ export const tick = (s: State, action: ActionType = null): State => {
     } as State;
   }
 
-  // if(needLineRemove(s.oldGameCubes as GameCube[][])){
-
-  // }
-
   if (s.currentGameCube.checkContinueMove(s)) {
     if (action !== null) {
       if (
@@ -1489,11 +1235,6 @@ export const tick = (s: State, action: ActionType = null): State => {
         const newState = s.currentGameCube.rotate(s);
         if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
           return lineRemoved(newState);
-          // const updateState = lineRemoved(newState);
-          // return {
-          //     ...newState,
-          //     scoreAndDropRate: updateState
-          // } as State;
         } else {
           return newState;
         }
@@ -1507,9 +1248,6 @@ export const tick = (s: State, action: ActionType = null): State => {
       }
     }
   } else {
-    if (s.currentGameCube.cubes.some((cube) => cube.shape === SHAPES.BOMB)) {
-      const storedOldState = s.currentGameCube.updateOldGameCubes(s);
-    }
     const storedOldState = s.currentGameCube.updateOldGameCubes(s);
     const { currentBlock, nextBlock } = createNewShapeFactory(s);
     if (storedOldState.oldGameCubes[0].some((cube) => cube !== null)) {
