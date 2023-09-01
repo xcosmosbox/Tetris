@@ -289,7 +289,7 @@ export class SquareBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated);
+      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -708,7 +708,7 @@ export class RaisedBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated);
+      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -1150,7 +1150,7 @@ export class LightningBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated);
+      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -1496,7 +1496,7 @@ export class LineBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated);
+      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
@@ -1684,23 +1684,48 @@ abstract class SpecialBlock implements GameBlock {
         Math.floor((oneCube.position.x as number) / Block.WIDTH),
         oneCube
       );
-      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated);
+      return this.updateOldGameCubesRec(index + 1, oldGameCubesUpdated as GameCube[][]);
     }
     return this.updateOldGameCubesRec(index + 1, oldGameCubes);
   };
 }
 
 export class StarBlock extends SpecialBlock{
-      //"rgba(128, 109, 158, 0.6)",
+      //"rgba(210, 53, 125, 0.4)",
   constructor(){
-    super("rgba(128, 109, 158, 0.6)", SHAPES.STAR);
+    super("white", SHAPES.STAR);
   }
 }
 
-export class BedrockBlock extends SpecialBlock{
+export class BombBlock extends SpecialBlock{
   constructor(){
-    super("gray", SHAPES.BEDROCK);
+    super("rgba(74, 64, 53, 0.7)", SHAPES.BOMB);
   }
+  override updateOldGameCubes = (s: State): State => {
+    const oneCube = this.cubes[0];
+    const deletePositions = this.getAdjacentPositions(oneCube.position);
+    const deletedPosition = deletePositions.reduce((acc, position) => {
+      return updateOldGameCubesUtil(acc, Math.floor((position.y as number) / Block.HEIGHT), Math.floor((position.x as number) / Block.WIDTH), null) as GameCube[][];
+
+    }, s.oldGameCubes as GameCube[][])
+
+    return {
+      ...s,
+      oldGameCubes: deletedPosition
+    } as State;
+  }
+
+  getAdjacentPositions = (position: Position): Position[] => {
+    const {x, y} = position;
+    return [
+      {x: x, y: y - Block.HEIGHT},
+      {x: x, y: y + Block.HEIGHT},
+      {x: x - Block.WIDTH, y: y},
+      {x: x + Block.WIDTH, y: y},
+      {x, y}
+    ]
+  }
+  
 }
 
 /**
@@ -1719,7 +1744,7 @@ export const tick = (s: State, action: ActionType = null): State => {
   }
 
   if (!s.currentGameCube || s.needToCreateCube) {
-    const { currentBlock, nextBlock } = createNewShapeFactory();
+    const { currentBlock, nextBlock } = createNewShapeFactory(s);
     return {
       ...s,
       currentGameCube: s.nextBlock || currentBlock,
@@ -1795,8 +1820,11 @@ export const tick = (s: State, action: ActionType = null): State => {
       }
     }
   } else {
+    if(s.currentGameCube.cubes.some(cube => cube.shape === SHAPES.BOMB)){
+      const storedOldState = s.currentGameCube.updateOldGameCubes(s);
+    } 
     const storedOldState = s.currentGameCube.updateOldGameCubes(s);
-    const { currentBlock, nextBlock } = createNewShapeFactory();
+    const { currentBlock, nextBlock } = createNewShapeFactory(s);
     if (storedOldState.oldGameCubes[0].some((cube) => cube !== null)) {
       return {
         ...getPoints(storedOldState),

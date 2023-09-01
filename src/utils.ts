@@ -1,21 +1,24 @@
 /** Utility functions */
 
 import { Block, Constants, SHAPES, Viewport } from "./main";
-import { LightningBlock, LineBlock, RaisedBlock, SquareBlock, StarBlock } from "./state";
+import { BombBlock, LightningBlock, LineBlock, RaisedBlock, SquareBlock, StarBlock } from "./state";
 
 const randomShape = (): GameBlock => {
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
-//   const blockContainer = [LineBlock, SquareBlock];
+  // const blockContainer = [LineBlock];
   const randomIndex = Math.floor(Math.random() * blockContainer.length);
   return new blockContainer[randomIndex]();
 };
 
 // util function to simulate factory method to create the attribute for new block
-export const createNewShapeFactory = (): {
+export const createNewShapeFactory = (s: State): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
-  if(Math.random() < 0.15){
+  if(Math.random() < 0.125){
+    if(Math.random() < 0.4 && s.scoreAndDropRate?.gameLevel as number > 3){
+      return { currentBlock: randomShape(), nextBlock: new BombBlock() }
+    }
     return { currentBlock: randomShape(), nextBlock: new StarBlock() };
   }
   return { currentBlock: randomShape(), nextBlock: randomShape() };
@@ -162,8 +165,8 @@ export const updateOldGameCubesUtil = (
   oldArray: GameCube[][],
   updateRow: number,
   updateCol: number,
-  newValue: GameCube
-): GameCube[][] => {
+  newValue: (GameCube | null)
+): (GameCube | null)[][] => {
   // Update the array at the corresponding position according to the specified row and col.
   // Finally, a new two-dimensional array will be returned.
   return oldArray.map((row, i) => {
@@ -175,6 +178,7 @@ export const updateOldGameCubesUtil = (
     return row;
   });
 };
+
 
 // left failed
 export const leftFailed = (block: GameBlock, s: State): State => {

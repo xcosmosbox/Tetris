@@ -12,10 +12,10 @@ type GameCube = Readonly<{
 }>;
 
 type ScoreAndDropRate = Readonly<{
-    gameLevel?:(number | null);
-    gameScore?: (number|null);
-    gameHighScore?: (number | null);
-    dropRate?: (number | null);
+    gameLevel:number;
+    gameScore: number;
+    gameHighScore: number;
+    dropRate: number;
 }>
 
 type State = Readonly<{

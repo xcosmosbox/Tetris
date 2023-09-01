@@ -56,7 +56,8 @@ export const SHAPES = {
   LIGHTNING_BLOCK: 2,
   LINE_BLOCK: 3,
   BEDROCK: 4,
-  STAR: 5
+  STAR: 5,
+  BOMB: 6
 } as const;
 
 /** User input */
