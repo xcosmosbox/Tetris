@@ -24,6 +24,8 @@ type State = Readonly<{
   oldGameCubes: (GameCube | null)[][]; // to record old blocks
   needToCreateCube?: boolean | null;
   scoreAndDropRate: ScoreAndDropRate | null;
+  shapeSeed: number;
+  colorSeed: number;
 }>;
 
 type Keypress = Readonly<{
@@ -35,7 +37,15 @@ type ClickType = Readonly<{
   type: string;
 }>;
 
-type ActionType = (number | Keypress | ClickType) | null;
+type RandomShapeGenerator = Readonly<{
+  shapeSeed: number;
+}>;
+
+type RandomColorGenerator = Readonly<{
+  colorSeed: number;
+}>
+
+type ActionType = (number | Keypress | ClickType | RandomShapeGenerator | RandomColorGenerator) | null;
 
 interface SvgCoordinate {
   index_x: number;

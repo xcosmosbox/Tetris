@@ -74,10 +74,10 @@ abstract class SimplyBlock implements GameBlock {
 }
 
 export class SquareBlock extends SimplyBlock {
-  constructor() {
+  constructor(seed: number) {
     super();
     const newBlock: GameCube = {
-      color: randomColor(),
+      color: randomColor(seed),
       shape: SHAPES.SQUARE_BLOCK,
       position: initialPosition.POSITION_1,
       rotationID: 0,
@@ -231,10 +231,10 @@ export class SquareBlock extends SimplyBlock {
 }
 
 export class RaisedBlock extends SimplyBlock {
-  constructor() {
+  constructor(seed: number) {
     super();
     const newBlock: GameCube = {
-      color: randomColor(),
+      color: randomColor(seed),
       shape: SHAPES.RAISED_BLOCK,
       position: initialPosition.POSITION_1,
       rotationID: 0,
@@ -505,10 +505,10 @@ export class RaisedBlock extends SimplyBlock {
 }
 
 export class LightningBlock extends SimplyBlock {
-  constructor() {
+  constructor(seed: number) {
     super();
     const newBlock: GameCube = {
-      color: randomColor(),
+      color: randomColor(seed),
       shape: SHAPES.LIGHTNING_BLOCK,
       position: initialPosition.POSITION_1,
       rotationID: 0,
@@ -807,10 +807,10 @@ export class LightningBlock extends SimplyBlock {
 }
 
 export class LineBlock extends SimplyBlock {
-  constructor() {
+  constructor(seed: number) {
     super();
     const newBlock: GameCube = {
-      color: randomColor(),
+      color: randomColor(seed),
       shape: SHAPES.LINE_BLOCK,
       position: initialPosition.POSITION_0,
       rotationID: 0,
@@ -1165,7 +1165,7 @@ export const tick = (s: State, action: ActionType = null): State => {
   }
 
   if (!s.currentGameCube || s.needToCreateCube) {
-    const { currentBlock, nextBlock } = createNewShapeFactory(s);
+    const { currentBlock, nextBlock } = createNewShapeFactory(s, s.shapeSeed, s.colorSeed);
     return {
       ...s,
       currentGameCube: s.nextBlock || currentBlock,
@@ -1233,7 +1233,7 @@ export const tick = (s: State, action: ActionType = null): State => {
     }
   } else {
     const storedOldState = s.currentGameCube.updateOldGameCubes(s);
-    const { currentBlock, nextBlock } = createNewShapeFactory(s);
+    const { currentBlock, nextBlock } = createNewShapeFactory(s, s.shapeSeed, s.colorSeed);
     if (storedOldState.oldGameCubes[0].some((cube) => cube !== null)) {
       return {
         ...getPoints(storedOldState),

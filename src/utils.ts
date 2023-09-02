@@ -9,33 +9,79 @@ import {
   SquareBlock,
   StarBlock,
 } from "./state";
+import { scan, type Observable, map, interval } from "rxjs";
 
-const randomShape = (): GameBlock => {
+/**
+ * A random number generator which provides two pure functions
+ * `hash` and `scaleToRange`.  Call `hash` repeatedly to generate the
+ * sequence of hashes.
+ */
+abstract class RNG {
+  // LCG using GCC's constants
+  private static m = 0x80000000; // 2**31
+  private static a = 1103515245;
+  private static c = 12345;
+
+  /**
+   * Call `hash` repeatedly to generate the sequence of hashes.
+   * @param seed
+   * @returns a hash of the seed
+   */
+  public static hash = (seed: number) => (RNG.a * seed + RNG.c) % RNG.m;
+
+  public static scale = (hash: number) => {
+    return Math.floor(hash / RNG.m * 4 + 1) - 1;
+  };
+}
+/**
+ * Creates a stream of random numbers in the range [-1, 1]
+ *
+ * @param source$ The source Observable, elements of this are replaced with random numbers
+ * @param seed The seed for the random number generator
+ */
+export function createRngStreamFromSource<T>(source$: Observable<T>) {
+  return function createRngStream(
+    seed: number = 0
+  ): Observable<number> {
+    const randomNumberStream = source$.pipe(
+      // when scan finishes processing the seed value 
+      // it will pass the result to the map function to perform the next step
+      scan(seed => RNG.hash(seed), seed),
+      map(RNG.scale)
+    );
+
+    return randomNumberStream;
+  };
+}
+
+const randomShape = (shapeSeed: number, colorSeed:number): GameBlock => {
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
   // const blockContainer = [LineBlock];
-  const randomIndex = Math.floor(Math.random() * blockContainer.length);
-  return new blockContainer[randomIndex]();
+  // const randomIndex = Math.floor(Math.random() * blockContainer.length);
+  // return new blockContainer[randomIndex]();
+  return new blockContainer[shapeSeed](colorSeed);
 };
 
-export const randomColor = (): string => {
+export const randomColor = (seed: number): string => {
   const colors = ["red", "green", "blue", "yellow"];
-  return colors[Math.floor(Math.random() * colors.length)];
+  // return colors[Math.floor(Math.random() * colors.length)];
+  return colors[seed];
 };
 
 // util function to simulate factory method to create the attribute for new block
 export const createNewShapeFactory = (
-  s: State
+  s: State, shapeSeed: number, colorSeed:number
 ): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
   if (Math.random() < 0.125) {
     if (Math.random() < 0.4 && (s.scoreAndDropRate?.gameLevel as number) > 3) {
-      return { currentBlock: randomShape(), nextBlock: new BombBlock() };
+      return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new BombBlock() };
     }
-    return { currentBlock: randomShape(), nextBlock: new StarBlock() };
+    return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new StarBlock() };
   }
-  return { currentBlock: randomShape(), nextBlock: randomShape() };
+  return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: randomShape(shapeSeed,colorSeed) };
 };
 
 export const createRowBedrocks = (rowIndex: number): GameCube[] => {

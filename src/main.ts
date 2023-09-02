@@ -17,6 +17,7 @@ import "./style.css";
 import { BehaviorSubject, from, fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan, takeWhile } from "rxjs/operators";
 import { tick } from "./state";
+import { createRngStreamFromSource } from "./utils";
 
 /** Constants */
 export const Viewport = {
@@ -103,6 +104,8 @@ const initialState: State = {
   oldGameCubes: new Array(Constants.GRID_HEIGHT)
     .fill(null)
     .map(() => new Array(Constants.GRID_WIDTH).fill(null)),
+  shapeSeed: 0,
+  colorSeed: 0
 } as const;
 
 /** Rendering (side effects) */
@@ -200,6 +203,20 @@ export function main() {
   const right$ = fromKey("KeyD", { axis: "x", amount: Block.WIDTH });
   const down$ = fromKey("KeyS", { axis: "y", amount: Block.HEIGHT });
   const rotate$ = fromKey("KeyW", { axis: "z", amount: 0 });
+  const shpaeSeed$ = createRngStreamFromSource(interval(7))(31).pipe(
+    map((val) => {
+      return {
+        shapeSeed: val,
+      } as RandomShapeGenerator;
+    })
+  );
+  const colorSeed$ = createRngStreamFromSource(interval(3))(11).pipe(
+    map((val) => {
+      return {
+        colorSeed: val,
+      } as RandomColorGenerator;
+    })
+  );
 
   /** Observables */
 
@@ -287,12 +304,18 @@ export function main() {
     down$,
     rotate$,
     mouseClick$,
-    instantReplay$
+    instantReplay$,
+    shpaeSeed$,
+    colorSeed$
   )
     .pipe(
       scan<ActionType, State>((s: State, action: ActionType) => {
         if (typeof action === "number") {
           return tick(s);
+        } else if (action && "shapeSeed" in action && action.shapeSeed){
+          return {...s, shapeSeed: action.shapeSeed} as State;
+        } else if (action && "colorSeed" in action && action.colorSeed){
+          return {...s, colorSeed: action.colorSeed} as State;
         } else if (action && "type" in action && action.type === "mouseClick") {
           if (s.gameEnd) {
             return {
