@@ -162,31 +162,32 @@ export class SquareBlock extends SimplyBlock {
         return leftSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        if (cube.rotationID === 0 || cube.rotationID === 2) {
-          return {
-            ...cube,
-            position: {
-              x: 0,
-              y: cube.position.y,
-            },
-          };
-        } else {
-          return {
-            ...cube,
-            position: {
-              x: Block.WIDTH,
-              y: cube.position.y,
-            },
-          };
-        }
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
+      // // If it is not in the boundary, it will be forced to return to the boundary
+      // const newCubes = this.cubes.map((cube) => {
+      //   if (cube.rotationID === 0 || cube.rotationID === 2) {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: 0,
+      //         y: cube.position.y,
+      //       },
+      //     };
+      //   } else {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: Block.WIDTH,
+      //         y: cube.position.y,
+      //       },
+      //     };
+      //   }
+      // });
+      // this.cubes = newCubes;
+      // return {
+      //   ...s,
+      //   currentGameCube: this,
+      // } as State;
     }
   };
 
@@ -207,31 +208,32 @@ export class SquareBlock extends SimplyBlock {
         return rightSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        if (cube.rotationID === 1 || cube.rotationID === 3) {
-          return {
-            ...cube,
-            position: {
-              x: Viewport.CANVAS_WIDTH - Block.WIDTH,
-              y: cube.position.y,
-            },
-          };
-        } else {
-          return {
-            ...cube,
-            position: {
-              x: Viewport.CANVAS_WIDTH - Block.WIDTH - Block.WIDTH,
-              y: cube.position.y,
-            },
-          };
-        }
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
+      // // If it is not in the boundary, it will be forced to return to the boundary
+      // const newCubes = this.cubes.map((cube) => {
+      //   if (cube.rotationID === 1 || cube.rotationID === 3) {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: Viewport.CANVAS_WIDTH - Block.WIDTH,
+      //         y: cube.position.y,
+      //       },
+      //     };
+      //   } else {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: Viewport.CANVAS_WIDTH - Block.WIDTH - Block.WIDTH,
+      //         y: cube.position.y,
+      //       },
+      //     };
+      //   }
+      // });
+      // this.cubes = newCubes;
+      // return {
+      //   ...s,
+      //   currentGameCube: this,
+      // } as State;
     }
   };
 
@@ -246,31 +248,32 @@ export class SquareBlock extends SimplyBlock {
         return downSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        if (cube.rotationID === 2 || cube.rotationID === 3) {
-          return {
-            ...cube,
-            position: {
-              x: cube.position.x,
-              y: Viewport.CANVAS_HEIGHT - Block.HEIGHT,
-            },
-          };
-        } else {
-          return {
-            ...cube,
-            position: {
-              x: cube.position.x,
-              y: Viewport.CANVAS_HEIGHT - Block.HEIGHT - Block.HEIGHT,
-            },
-          };
-        }
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
+      // // If it is not in the boundary, it will be forced to return to the boundary
+      // const newCubes = this.cubes.map((cube) => {
+      //   if (cube.rotationID === 2 || cube.rotationID === 3) {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: cube.position.x,
+      //         y: Viewport.CANVAS_HEIGHT - Block.HEIGHT,
+      //       },
+      //     };
+      //   } else {
+      //     return {
+      //       ...cube,
+      //       position: {
+      //         x: cube.position.x,
+      //         y: Viewport.CANVAS_HEIGHT - Block.HEIGHT - Block.HEIGHT,
+      //       },
+      //     };
+      //   }
+      // });
+      // this.cubes = newCubes;
+      // return {
+      //   ...s,
+      //   currentGameCube: this,
+      // } as State;
     }
   };
   rotate = (s: State): State => {
