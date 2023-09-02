@@ -14,8 +14,8 @@
 
 import "./style.css";
 
-import { BehaviorSubject, from, fromEvent, interval, merge } from "rxjs";
-import { map, filter, scan, takeWhile } from "rxjs/operators";
+import { fromEvent, interval, merge } from "rxjs";
+import { map, filter, scan } from "rxjs/operators";
 import { tick } from "./state";
 import { createRngStreamFromSource } from "./utils";
 
