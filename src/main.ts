@@ -39,6 +39,7 @@ export const Block = {
   HEIGHT: Viewport.CANVAS_HEIGHT / Constants.GRID_HEIGHT,
 };
 
+// Shapes 
 export const SHAPES = {
   SQUARE_BLOCK: 0,
   RAISED_BLOCK: 1,
@@ -49,6 +50,7 @@ export const SHAPES = {
   BOMB: 6,
 } as const;
 
+// Constant for the block's starting coordinates
 export const initialPosition = {
   POSITION_0: {
     x: Block.WIDTH * (Math.floor(Viewport.CANVAS_WIDTH / Block.WIDTH / 2) - 2),
@@ -178,6 +180,8 @@ export function main() {
   /** User input */
 
   const key$ = fromEvent<KeyboardEvent>(document, "keypress");
+
+  // Observable on two different click events
   const mouseClick$ = fromEvent<MouseEvent>(document, "click").pipe(
     map(() => {
       return {
@@ -199,10 +203,13 @@ export function main() {
       map(() => userKeypress)
     );
 
+  // Observable of keyboard keys
   const left$ = fromKey("KeyA", { axis: "x", amount: -Block.WIDTH });
   const right$ = fromKey("KeyD", { axis: "x", amount: Block.WIDTH });
   const down$ = fromKey("KeyS", { axis: "y", amount: Block.HEIGHT });
   const rotate$ = fromKey("KeyW", { axis: "z", amount: 0 });
+
+  // Observable of radom number generator
   const shpaeSeed$ = createRngStreamFromSource(interval(7))(31).pipe(
     map((val) => {
       return {
@@ -242,6 +249,10 @@ export function main() {
     }
   };
 
+  /**
+   * render new child to preview
+   * @param block one game cube
+   */
   const renderChildToPreview = (block: GameCube | null) => {
     if (block) {
       // Add a block to the preview canvas
@@ -291,12 +302,13 @@ export function main() {
       s.currentGameCube.cubes.forEach((cube) => renderChildToSvg(cube));
     }
 
-    // render other blocks
+    // render old blocks
     if (s.oldGameCubes) {
       s.oldGameCubes.map((row) => row.map(renderChildToSvg));
     }
   };
 
+  // merge all obserable stream
   const source$ = merge(
     tick$,
     left$,
@@ -310,13 +322,18 @@ export function main() {
   )
     .pipe(
       scan<ActionType, State>((s: State, action: ActionType) => {
+        // round runs normally
         if (typeof action === "number") {
           return tick(s);
         } else if (action && "shapeSeed" in action && action.shapeSeed){
+          // Modify shapeSeed
           return {...s, shapeSeed: action.shapeSeed} as State;
         } else if (action && "colorSeed" in action && action.colorSeed){
+          // Modify colorSeed
           return {...s, colorSeed: action.colorSeed} as State;
         } else if (action && "type" in action && action.type === "mouseClick") {
+          // Click event fires
+          // restart the game
           if (s.gameEnd) {
             return {
               ...initialState,
@@ -338,6 +355,7 @@ export function main() {
           "type" in action &&
           action.type === "instantReplay"
         ) {
+          // Restart the game immediately
           return {
             ...initialState,
             scoreAndDropRate: {
@@ -352,11 +370,13 @@ export function main() {
             },
           } as State;
         } else {
+          // Pass in the direction that needs to be modified
           return tick(s, action);
         }
       }, initialState)
     )
     .subscribe((s: State) => {
+      // render game 
       render(s);
 
       if (s.gameEnd) {
