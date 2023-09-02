@@ -1324,6 +1324,15 @@ export const tick = (s: State, action: ActionType = null): State => {
     } as State;
   }
 
+  // Check if any blocks need to be removed
+  const checkLineRemove = (state: State): State => {
+    if (needLineRemove(state.oldGameCubes as GameCube[][])) {
+      return lineRemoved(state);
+    } else {
+      return state;
+    }
+  }
+
   // Check if it can be moved
   if (s.currentGameCube.checkContinueMove(s)) {
     // Perform operations based on the type of instruction
@@ -1337,11 +1346,7 @@ export const tick = (s: State, action: ActionType = null): State => {
           s,
           (action as Keypress).amount
         );
-        if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
-          return lineRemoved(newState);
-        } else {
-          return newState;
-        }
+        return checkLineRemove(newState);
       } 
       // move to the right
       else if (
@@ -1352,11 +1357,7 @@ export const tick = (s: State, action: ActionType = null): State => {
           s,
           (action as Keypress).amount
         );
-        if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
-          return lineRemoved(newState);
-        } else {
-          return newState;
-        }
+        return checkLineRemove(newState);
       }
       // move to the down 
       else if (
@@ -1367,28 +1368,15 @@ export const tick = (s: State, action: ActionType = null): State => {
           s,
           (action as Keypress).amount
         );
-        if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
-          return lineRemoved(newState);
-        } else {
-          return newState;
-        }
+        return checkLineRemove(newState);
       } else if ((action as Keypress).axis === "z") {
         const newState = s.currentGameCube.rotate(s);
-        if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
-          return lineRemoved(newState);
-        } else {
-          return newState;
-        }
+        return checkLineRemove(newState);
       }
     } else {
       // This is no special instruction, keep moving
       const newState = s.currentGameCube.updatePositions(s);
-      // Check if any blocks need to be removed
-      if (needLineRemove(newState.oldGameCubes as GameCube[][])) {
-        return lineRemoved(newState);
-      } else {
-        return newState;
-      }
+      return checkLineRemove(newState);
     }
   } else {
     // Cannot move
