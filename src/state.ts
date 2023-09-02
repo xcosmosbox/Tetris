@@ -24,9 +24,26 @@ import {
 abstract class SimplyBlock implements GameBlock {
   constructor() {}
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
+  rotationLevel: number = 0; 
   abstract moveLeft(s: State, amount: number): State;
   abstract moveRight(s: State, amount: number): State;
   abstract moveDown(s: State, amount: number): State;
+
+  moveHelper = (block: GameBlock, s: State, amount: number, boundarySymbol:string, collisionSymbol:string, collisionRule:(state: State, cube:GameCube, collisionSymbol:string)=>boolean,
+                failed:(failedBlock:GameBlock, state: State)=>State, success:(successBlock:GameBlock, state: State, amount: number)=>State):State => {
+    if (isWithinBoundary(block.cubes, boundarySymbol, amount)) {
+      // Is there a collision
+      if (block.cubes.some((cube) => collisionRule(s, cube, collisionSymbol))) {
+        return failed(block, s);
+      } else {
+        return success(block, s, amount);
+      }
+    } else {
+      // If it is not in the boundary, it will be forced to return to the boundary
+      return s;
+    }
+  }
+
   abstract rotate(s: State): State;
 
   // Checks if it is possible to continue moving down
@@ -307,7 +324,31 @@ export class RaisedBlock extends SimplyBlock {
   rotationLevel: number = 0;
 
   // The detection logic of the block moving to the left
-  moveLeft = (s: State, amount: number): State => {
+  moveLeft(s: State, amount: number): State{
+
+    const collisionRuleGenerator = (level: number) => {
+      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+        return (
+              ((level === 0 &&
+                (cube.rotationID === 1 || cube.rotationID === 0)) ||
+                (level === 1 &&
+                  (cube.rotationID === 0 ||
+                    cube.rotationID === 3 ||
+                    cube.rotationID === 1)) ||
+                (level === 2 &&
+                  (cube.rotationID === 3 || cube.rotationID === 0)) ||
+                (level === 3 &&
+                  (cube.rotationID === 1 ||
+                    cube.rotationID === 2 ||
+                    cube.rotationID === 3))) &&
+              hasCollision(state, cube, collisionSymbol)
+            );
+      } 
+    }
+
+    return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
+    
+
     // Check is within boundary
     if (isWithinBoundary(this.cubes, "x", amount)) {
       // Is there a collision

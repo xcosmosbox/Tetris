@@ -336,23 +336,23 @@ export const isWithinBoundary = (
  * @param direction direction symbol
  * @returns boolean value for has collision
  */
-export const hasCollision = (s: State, cube: GameCube, direction: string) => {
+export const hasCollision = (s: State, cube: GameCube, direction: string):boolean => {
   // check left edge
   if (direction === "l") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
-    ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1];
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1] ? true : false;
   }
   // check right edge
   if (direction === "r") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
-    ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1];
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1] ? true : false;
   }
   // check bottom edge
   return s.oldGameCubes[
     Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-  ][Math.floor((cube.position.x as number) / Block.WIDTH)];
+  ][Math.floor((cube.position.x as number) / Block.WIDTH)] ? true : false;
 };
 
 /**

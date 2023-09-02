@@ -61,9 +61,12 @@ type ActionType = (number | Keypress | ClickType | RandomShapeGenerator | Random
 // GameBlock interface fully reflects the efficient use of generics
 interface GameBlock {
   cubes: GameCube[];
+  rotationLevel: number;
   moveLeft(s: State, amount: number): State;
   moveRight(s: State, amount: number): State;
   moveDown(s: State, amount: number): State;
+  moveHelper(block: GameBlock, s: State, amount: number, boundarySymbol:string, collisionSymbol:string, collisionRule:(state: State, cube:GameCube, collisionSymbol:string)=>boolean,
+  failed:(failedBlock:GameBlock, state: State)=>State, success:(successBlock:GameBlock, state: State, amount: number)=>State):State;
   rotate(s: State): State;
   checkContinueMove(s: State): boolean;
   checkContinueDown(s: State, cubes: GameCube[]): boolean;
