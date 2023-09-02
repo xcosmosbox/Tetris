@@ -1,8 +1,10 @@
+// Position type to record one cube position
 type Position = Readonly<{
   x: number;
   y: number;
 }>;
 
+// GameCube type to record all information about one cube
 type GameCube = Readonly<{
   color: string;
   shape: number;
@@ -10,6 +12,7 @@ type GameCube = Readonly<{
   rotationID: number;
 }>;
 
+// ScoreAndDropRate type to record game score and level
 type ScoreAndDropRate = Readonly<{
   gameLevel: number;
   gameScore: number;
@@ -17,6 +20,8 @@ type ScoreAndDropRate = Readonly<{
   dropRate: number;
 }>;
 
+// State type to record all game state information
+// State type is the core used to build the game state management system
 type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: GameBlock | null;
@@ -28,30 +33,32 @@ type State = Readonly<{
   colorSeed: number;
 }>;
 
+// Keypress to pack Keypress info
 type Keypress = Readonly<{
   axis: "x" | "y" | "z";
   amount: number;
 }>;
 
+// ClickType to pack mouse click event
 type ClickType = Readonly<{
   type: string;
 }>;
 
+// RandomShapeGenerator to pack random number generator
 type RandomShapeGenerator = Readonly<{
   shapeSeed: number;
 }>;
 
+// RandomColorGenerator to pack random number generator
 type RandomColorGenerator = Readonly<{
   colorSeed: number;
 }>
 
+// ActionType to pack (number | Keypress | ClickType | RandomShapeGenerator | RandomColorGenerator) type
 type ActionType = (number | Keypress | ClickType | RandomShapeGenerator | RandomColorGenerator) | null;
 
-interface SvgCoordinate {
-  index_x: number;
-  index_y: number;
-}
-
+// GameBlock is the interface of the game block. It is convenient for the class to implement fixed functions and functions
+// GameBlock interface fully reflects the efficient use of generics
 interface GameBlock {
   cubes: GameCube[];
   moveLeft(s: State, amount: number): State;

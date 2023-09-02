@@ -34,7 +34,7 @@ abstract class RNG {
   };
 }
 /**
- * Creates a stream of random numbers in the range [-1, 1]
+ * Creates a stream of random numbers in the range [0,3]
  *
  * @param source$ The source Observable, elements of this are replaced with random numbers
  * @param seed The seed for the random number generator
@@ -54,29 +54,45 @@ export function createRngStreamFromSource<T>(source$: Observable<T>) {
   };
 }
 
+
+/**
+ * 
+ * @param shapeSeed random number for creating shape
+ * @param colorSeed random number for creating color
+ * @returns GameBlock 
+ */
 const randomShape = (shapeSeed: number, colorSeed:number): GameBlock => {
+  // choose GameBlock class
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
-  // const blockContainer = [LineBlock];
-  // const randomIndex = Math.floor(Math.random() * blockContainer.length);
-  // return new blockContainer[randomIndex]();
+  // return an random GameBlock
   return new blockContainer[shapeSeed](colorSeed);
 };
 
+/**
+ * 
+ * @param seed using seed to choose color
+ * @returns reandom color
+ */
 export const randomColor = (seed: number): string => {
   const colors = ["red", "green", "blue", "yellow"];
-  // return colors[Math.floor(Math.random() * colors.length)];
   return colors[seed];
 };
 
-// util function to simulate factory method to create the attribute for new block
+/**
+ * util function to simulate factory method to create the attribute for new block
+ * @param s game state
+ * @param shapeSeed one seed to choose shpae
+ * @param colorSeed one seed to choose color
+ * @returns currentBlock choose and nextBlock choose
+ */
 export const createNewShapeFactory = (
   s: State, shapeSeed: number, colorSeed:number
 ): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
-  if (Math.random() < 0.125) {
-    if (Math.random() < 0.4 && (s.scoreAndDropRate?.gameLevel as number) > 3) {
+  if (RNG.scale(RNG.hash(shapeSeed)+RNG.hash(colorSeed)) < 1) {
+    if (RNG.scale(RNG.hash(RNG.scale(RNG.hash(shapeSeed)+RNG.hash(colorSeed))))< 2 && (s.scoreAndDropRate?.gameLevel as number) > 3) {
       return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new BombBlock() };
     }
     return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new StarBlock() };
@@ -84,8 +100,17 @@ export const createNewShapeFactory = (
   return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: randomShape(shapeSeed,colorSeed) };
 };
 
+/**
+ * increase difficult function
+ * create one whole row bedrocks to increase game difficult
+ * @param rowIndex bedrocks row index
+ * @returns one row GameCube
+ */
 export const createRowBedrocks = (rowIndex: number): GameCube[] => {
-  return Array.from({ length: 10 }).map((_, index) => {
+  // using Array.from to iterate
+  // using map to return new element
+  return Array.from({ length: Constants.GRID_WIDTH }).map((_, index) => {
+    // return GameCube
     return {
       color: "gray",
       shape: SHAPES.BEDROCK,
@@ -95,36 +120,46 @@ export const createRowBedrocks = (rowIndex: number): GameCube[] => {
           Viewport.CANVAS_HEIGHT -
           (Constants.GRID_HEIGHT - rowIndex) * Block.HEIGHT,
       } as Position,
-      svgCoordinates: {
-        index_x: Constants.GRID_HEIGHT - rowIndex,
-        index_y: Viewport.CANVAS_WIDTH / (index * Block.WIDTH),
-      },
       rotationID: 0,
     } as GameCube;
   });
 };
 
+/**
+ * Calculate current game score
+ * @param s game state
+ * @param lineRemoved to check this function will calculate 100*amout points, default value false
+ * @param amount number of rows removed
+ * @returns new game state
+ */
 export const getPoints = (
   s: State,
   lineRemoved: boolean = false,
   amount: number = 0
 ): State => {
+  // Calculate new score
   const newScore = lineRemoved
     ? (s.scoreAndDropRate?.gameScore as number) + 100 * amount
     : (s.scoreAndDropRate?.gameScore as number) + 10;
+  // Calculate new level
   const newLevel = Math.floor(newScore / 1000) + 1;
+  // Calculate new high score (if needed)
   const newHightScore =
     newScore > (s.scoreAndDropRate?.gameHighScore as number)
       ? newScore
       : (s.scoreAndDropRate?.gameHighScore as number);
 
+  // Increase game difficulty according to game level
+  // The maximum difficulty increase is level 10
   if (newLevel > 1 && newLevel <= 10) {
+    // Calculate the lines that need to be disabled according to the game level
     const buildBedrock = s.oldGameCubes.map((row, index) => {
       if (index >= Constants.GRID_HEIGHT - (newLevel - 1)) {
         return createRowBedrocks(index);
       }
       return row;
     });
+    // return game sate
     return {
       ...s,
       scoreAndDropRate: {
@@ -137,6 +172,7 @@ export const getPoints = (
     } as State;
   }
 
+  // return game state
   return {
     ...s,
     scoreAndDropRate: {
@@ -150,7 +186,7 @@ export const getPoints = (
 
 // util function to check line whether is need to remove
 export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
-  // If a row in the array is completely filled, the representation can be eliminated
+  // If a row in the array is completely filled, the representation can be removed
   return oldGameCubes.some((row) =>
     row.every((cube) => cube !== null && cube.shape !== SHAPES.BEDROCK)
   );
@@ -158,7 +194,8 @@ export const needLineRemove = (oldGameCubes: GameCube[][]): boolean => {
 
 // util function to check line removed and update related data
 export const lineRemoved = (s: State): State => {
-  // get all index of full fill row
+  // get all index number of full fill row
+  // except the disabled line
   const fullyFilledRowIndices = s.oldGameCubes
     .map((row, index) =>
       row.every((cell) => cell !== null && cell.shape !== SHAPES.BEDROCK)
@@ -167,7 +204,7 @@ export const lineRemoved = (s: State): State => {
     )
     .filter((index) => index !== -1);
 
-  // check whether is StarBlock
+  // confirm whether there is a StarBlock in the line that needs to be removed
   const startIndex = s.oldGameCubes
     .map((row, index) => {
       return fullyFilledRowIndices.includes(index) &&
@@ -177,35 +214,42 @@ export const lineRemoved = (s: State): State => {
     })
     .filter((index) => index !== -1);
 
-  // concat new remove row
+  // Add a new remove effect according to the line where the startblock is located
   const newRemoveRow = [
     ...new Set(
       startIndex.reduce<number[]>((acc, index) => {
+        // Handle edge cases
         if (index === 0) {
           return [0, 1, ...acc];
         }
         if (index === 19) {
           return [18, 19, ...acc];
         }
+        // star block will remove three lines at once
         return [index - 1, index, index + 1, ...acc];
       }, [])
     ),
   ];
 
-  // merge final array
+  // merge final array between fullyFilledRowIndices and newRemoveRow
+  // if there is no star block, the result is the same as fullyFilledRowIndices
   const finalRemoveRow = [
     ...new Set([...fullyFilledRowIndices, ...newRemoveRow]),
   ];
 
-  // get new 2D array exclusive full fill row
+  // get new 2D array, full fill row cleaned
   const clearedCanvas = s.oldGameCubes.map((row, rowIndex) => {
     return finalRemoveRow.includes(rowIndex)
       ? new Array(row.length).fill(null)
       : row;
   });
 
+  // Move the row above the removed row
+  // Rows below the removed row are left unchanged
   const moveDownMatrix = clearedCanvas.map((row, index) => {
+    // check location
     if (index <= Math.max(...finalRemoveRow)) {
+      // handle edge case 
       return index - finalRemoveRow.length >= 0
         ? clearedCanvas[index - finalRemoveRow.length].map((element) => {
             return element
@@ -221,9 +265,11 @@ export const lineRemoved = (s: State): State => {
           })
         : new Array(row.length).fill(null);
     }
+    // below row
     return row;
   });
 
+  // Calculate the new score and return the new state
   return getPoints(
     { ...s, oldGameCubes: moveDownMatrix },
     true,
@@ -250,14 +296,24 @@ export const updateOldGameCubesUtil = (
   });
 };
 
+/**
+ * Check if the block is within the bounds
+ * Use direction and amount to determine which boundary to check specifically
+ * @param cubes GameCubes to be checked
+ * @param direction direction
+ * @param amount check distance amount
+ * @returns 
+ */
 export const isWithinBoundary = (
   cubes: GameCube[],
   direction: string,
   amount: number
 ): boolean => {
+  // check left edge
   if (direction === "x" && amount < 0) {
     return cubes.every((cube) => (cube.position.x as number) + amount >= 0);
   }
+  // check right edge
   if (direction === "x" && amount > 0) {
     return cubes.every(
       (cube) =>
@@ -265,6 +321,7 @@ export const isWithinBoundary = (
         Viewport.CANVAS_WIDTH - Block.WIDTH
     );
   }
+  // check bottom edge
   return cubes.every(
     (cube) =>
       (cube.position.y as number) + amount <=
@@ -272,24 +329,40 @@ export const isWithinBoundary = (
   );
 };
 
+/**
+ * check any cubes whether has collision
+ * @param s game state
+ * @param cube one cube
+ * @param direction direction symbol
+ * @returns boolean value for has collision
+ */
 export const hasCollision = (s: State, cube: GameCube, direction: string) => {
+  // check left edge
   if (direction === "l") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
     ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1];
   }
+  // check right edge
   if (direction === "r") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
     ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1];
   }
+  // check bottom edge
   return s.oldGameCubes[
     Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
   ][Math.floor((cube.position.x as number) / Block.WIDTH)];
 };
 
-// left failed
+/**
+ * Move left failed
+ * @param block one game block
+ * @param s game state
+ * @returns updated game state
+ */
 export const leftFailed = (block: GameBlock, s: State): State => {
+  // update cubes
   const newCubes = block.cubes.map((cube) => {
     return {
       ...cube,
@@ -306,12 +379,19 @@ export const leftFailed = (block: GameBlock, s: State): State => {
   } as State;
 };
 
-// left success
+/**
+ * Move left successfully
+ * @param block one game block
+ * @param s game state
+ * @param amount left distance
+ * @returns updated game state
+ */
 export const leftSuccess = (
   block: GameBlock,
   s: State,
   amount: number
 ): State => {
+  // update cubes
   const newCubes = block.cubes.map((cube) => {
     return {
       ...cube,
@@ -328,7 +408,12 @@ export const leftSuccess = (
   } as State;
 };
 
-// move right failed
+/**
+ * Move right failed
+ * @param block one game block
+ * @param s game state
+ * @returns updated game state
+ */
 export const rightFailed = (block: GameBlock, s: State): State => {
   const newCubes = block.cubes.map((cube) => {
     return {
@@ -346,7 +431,13 @@ export const rightFailed = (block: GameBlock, s: State): State => {
   } as State;
 };
 
-// move right success
+/**
+ * Move right successfully
+ * @param block one game block
+ * @param s game state
+ * @param amount left distance
+ * @returns updated game state
+ */
 export const rightSuccess = (
   block: GameBlock,
   s: State,
@@ -368,6 +459,12 @@ export const rightSuccess = (
   } as State;
 };
 
+/**
+ * Move down failed
+ * @param block one game block
+ * @param s game state
+ * @returns updated game state
+ */
 export const downFailed = (block: GameBlock, s: State): State => {
   const newCubes = block.cubes.map((cube) => {
     return {
@@ -386,6 +483,13 @@ export const downFailed = (block: GameBlock, s: State): State => {
   } as State;
 };
 
+/**
+ * Move down successfully
+ * @param block one game block
+ * @param s game state
+ * @param amount left distance
+ * @returns updated game state
+ */
 export const downSuccess = (
   block: GameBlock,
   s: State,
