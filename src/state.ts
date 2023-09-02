@@ -29,6 +29,7 @@ abstract class SimplyBlock implements GameBlock {
   abstract moveRight(s: State, amount: number): State;
   abstract moveDown(s: State, amount: number): State;
 
+  // The moveHelper function receives multiple parameters to determine whether a collision occurs
   moveHelper = (block: GameBlock, s: State, amount: number, boundarySymbol:string, collisionSymbol:string, collisionRule:(state: State, cube:GameCube, collisionSymbol:string)=>boolean,
                 failed:(failedBlock:GameBlock, state: State)=>State, success:(successBlock:GameBlock, state: State, amount: number)=>State):State => {
     // Check is within boundary
@@ -163,31 +164,6 @@ export class SquareBlock extends SimplyBlock {
       }
     } else {
       return s;
-      // // If it is not in the boundary, it will be forced to return to the boundary
-      // const newCubes = this.cubes.map((cube) => {
-      //   if (cube.rotationID === 0 || cube.rotationID === 2) {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: 0,
-      //         y: cube.position.y,
-      //       },
-      //     };
-      //   } else {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: Block.WIDTH,
-      //         y: cube.position.y,
-      //       },
-      //     };
-      //   }
-      // });
-      // this.cubes = newCubes;
-      // return {
-      //   ...s,
-      //   currentGameCube: this,
-      // } as State;
     }
   };
 
@@ -209,31 +185,6 @@ export class SquareBlock extends SimplyBlock {
       }
     } else {
       return s;
-      // // If it is not in the boundary, it will be forced to return to the boundary
-      // const newCubes = this.cubes.map((cube) => {
-      //   if (cube.rotationID === 1 || cube.rotationID === 3) {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: Viewport.CANVAS_WIDTH - Block.WIDTH,
-      //         y: cube.position.y,
-      //       },
-      //     };
-      //   } else {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: Viewport.CANVAS_WIDTH - Block.WIDTH - Block.WIDTH,
-      //         y: cube.position.y,
-      //       },
-      //     };
-      //   }
-      // });
-      // this.cubes = newCubes;
-      // return {
-      //   ...s,
-      //   currentGameCube: this,
-      // } as State;
     }
   };
 
@@ -249,31 +200,6 @@ export class SquareBlock extends SimplyBlock {
       }
     } else {
       return s;
-      // // If it is not in the boundary, it will be forced to return to the boundary
-      // const newCubes = this.cubes.map((cube) => {
-      //   if (cube.rotationID === 2 || cube.rotationID === 3) {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: cube.position.x,
-      //         y: Viewport.CANVAS_HEIGHT - Block.HEIGHT,
-      //       },
-      //     };
-      //   } else {
-      //     return {
-      //       ...cube,
-      //       position: {
-      //         x: cube.position.x,
-      //         y: Viewport.CANVAS_HEIGHT - Block.HEIGHT - Block.HEIGHT,
-      //       },
-      //     };
-      //   }
-      // });
-      // this.cubes = newCubes;
-      // return {
-      //   ...s,
-      //   currentGameCube: this,
-      // } as State;
     }
   };
   rotate = (s: State): State => {
@@ -330,6 +256,7 @@ export class RaisedBlock extends SimplyBlock {
   // The detection logic of the block moving to the left
   moveLeft(s: State, amount: number): State{
 
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -350,13 +277,14 @@ export class RaisedBlock extends SimplyBlock {
       } 
     }
 
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
     
   };
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
-
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -376,39 +304,9 @@ export class RaisedBlock extends SimplyBlock {
         );
       } 
     }
-
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
 
-    // // Check is within boundary
-    // if (isWithinBoundary(this.cubes, "x", amount)) {
-    //    // Is there a collision
-    //   if (
-    //     this.cubes.some((cube) => {
-    //       return (
-    //         ((this.rotationLevel === 0 &&
-    //           (cube.rotationID === 3 || cube.rotationID === 0)) ||
-    //           (this.rotationLevel === 2 &&
-    //             (cube.rotationID === 1 || cube.rotationID === 0)) ||
-    //           (this.rotationLevel === 3 &&
-    //             (cube.rotationID === 0 ||
-    //               cube.rotationID === 1 ||
-    //               cube.rotationID === 3)) ||
-    //           (this.rotationLevel === 1 &&
-    //             (cube.rotationID === 1 ||
-    //               cube.rotationID === 2 ||
-    //               cube.rotationID === 3))) &&
-    //         hasCollision(s, cube, "r")
-    //       );
-    //     })
-    //   ) {
-    //     return rightFailed(this, s);
-    //   } else {
-    //     return rightSuccess(this, s, amount);
-    //   }
-    // } else {
-    //   // If it is not in the boundary, it will be forced to return to the boundary
-    //   return s;
-    // }
   };
 
   // The detection logic of the block moving to the down
@@ -646,7 +544,7 @@ export class LightningBlock extends SimplyBlock {
 
   // The detection logic of the block moving to the left
   moveLeft = (s: State, amount: number): State => {
-
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -666,13 +564,13 @@ export class LightningBlock extends SimplyBlock {
         );
       } 
     }
-
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
   };
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
-
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -692,7 +590,7 @@ export class LightningBlock extends SimplyBlock {
         );
       } 
     }
-
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
 
   };
@@ -960,6 +858,7 @@ export class LineBlock extends SimplyBlock {
 
   // The detection logic of the block moving to the left
   moveLeft = (s: State, amount: number): State => {
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -973,13 +872,13 @@ export class LineBlock extends SimplyBlock {
         );
       } 
     }
-
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
   };
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
-
+    // Create collision rules
     const collisionRuleGenerator = (level: number) => {
       return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
         return (
@@ -993,7 +892,7 @@ export class LineBlock extends SimplyBlock {
         );
       } 
     }
-
+    // Return collision check results
     return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
 
   };
@@ -1171,21 +1070,7 @@ abstract class SpecialBlock extends SimplyBlock {
         return leftSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        return {
-          ...cube,
-          position: {
-            x: 0,
-            y: cube.position.y,
-          },
-        };
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
     }
   };
 
@@ -1200,21 +1085,7 @@ abstract class SpecialBlock extends SimplyBlock {
         return rightSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        return {
-          ...cube,
-          position: {
-            x: Viewport.CANVAS_WIDTH - Block.WIDTH,
-            y: cube.position.y,
-          },
-        };
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
     }
   };
 
@@ -1229,21 +1100,7 @@ abstract class SpecialBlock extends SimplyBlock {
         return downSuccess(this, s, amount);
       }
     } else {
-      // If it is not in the boundary, it will be forced to return to the boundary
-      const newCubes = this.cubes.map((cube) => {
-        return {
-          ...cube,
-          position: {
-            x: cube.position.x,
-            y: Viewport.CANVAS_HEIGHT - Block.HEIGHT,
-          },
-        };
-      });
-      this.cubes = newCubes;
-      return {
-        ...s,
-        currentGameCube: this,
-      } as State;
+      return s;
     }
   };
 

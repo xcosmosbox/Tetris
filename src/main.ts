@@ -210,14 +210,14 @@ export function main() {
   const rotate$ = fromKey("KeyW", { axis: "z", amount: 0 });
 
   // Observable of radom number generator
-  const shpaeSeed$ = createRngStreamFromSource(interval(7))(31).pipe(
+  const shpaeSeed$ = createRngStreamFromSource(interval(199))(3).pipe(
     map((val) => {
       return {
         shapeSeed: val,
       } as RandomShapeGenerator;
     })
   );
-  const colorSeed$ = createRngStreamFromSource(interval(3))(11).pipe(
+  const colorSeed$ = createRngStreamFromSource(interval(31))(7).pipe(
     map((val) => {
       return {
         colorSeed: val,
