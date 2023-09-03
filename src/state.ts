@@ -24,14 +24,26 @@ import {
 abstract class SimplyBlock implements GameBlock {
   constructor() {}
   cubes: GameCube[] = new Array(Constants.CUBE_NUMBERS).fill(null);
-  rotationLevel: number = 0; 
+  rotationLevel: number = 0;
   abstract moveLeft(s: State, amount: number): State;
   abstract moveRight(s: State, amount: number): State;
   abstract moveDown(s: State, amount: number): State;
 
   // The moveHelper function receives multiple parameters to determine whether a collision occurs
-  moveHelper = (block: GameBlock, s: State, amount: number, boundarySymbol:string, collisionSymbol:string, collisionRule:(state: State, cube:GameCube, collisionSymbol:string)=>boolean,
-                failed:(failedBlock:GameBlock, state: State)=>State, success:(successBlock:GameBlock, state: State, amount: number)=>State):State => {
+  moveHelper = (
+    block: GameBlock,
+    s: State,
+    amount: number,
+    boundarySymbol: string,
+    collisionSymbol: string,
+    collisionRule: (
+      state: State,
+      cube: GameCube,
+      collisionSymbol: string
+    ) => boolean,
+    failed: (failedBlock: GameBlock, state: State) => State,
+    success: (successBlock: GameBlock, state: State, amount: number) => State
+  ): State => {
     // Check is within boundary
     if (isWithinBoundary(block.cubes, boundarySymbol, amount)) {
       // Is there a collision
@@ -44,7 +56,7 @@ abstract class SimplyBlock implements GameBlock {
       // If it is not in the boundary, it will be forced to return to the boundary
       return s;
     }
-  }
+  };
 
   abstract rotate(s: State): State;
 
@@ -61,10 +73,10 @@ abstract class SimplyBlock implements GameBlock {
     }
   };
 
-  // Since the shapes represented by different classes are different, 
+  // Since the shapes represented by different classes are different,
   // the specific implementation of this function is left to subclasses.
   abstract checkContinueDown(s: State, cubes: GameCube[]): boolean;
-  
+
   // update position
   updatePositions = (s: State): State => {
     return this.moveDown(s, Block.HEIGHT);
@@ -207,8 +219,8 @@ export class SquareBlock extends SimplyBlock {
     return s;
   };
 
-  // When moving down 
-  // only need to pay attention to whether the blocks 
+  // When moving down
+  // only need to pay attention to whether the blocks
   // with rotationID equal to 2 and 3 have no collision
   checkContinueDown = (s: State, cubes: GameCube[]) => {
     return cubes.some(
@@ -254,44 +266,55 @@ export class RaisedBlock extends SimplyBlock {
   rotationLevel: number = 0;
 
   // The detection logic of the block moving to the left
-  moveLeft(s: State, amount: number): State{
-
+  moveLeft(s: State, amount: number): State {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
-              ((level === 0 &&
-                (cube.rotationID === 1 || cube.rotationID === 0)) ||
-                (level === 1 &&
-                  (cube.rotationID === 0 ||
-                    cube.rotationID === 3 ||
-                    cube.rotationID === 1)) ||
-                (level === 2 &&
-                  (cube.rotationID === 3 || cube.rotationID === 0)) ||
-                (level === 3 &&
-                  (cube.rotationID === 1 ||
-                    cube.rotationID === 2 ||
-                    cube.rotationID === 3))) &&
-              hasCollision(state, cube, collisionSymbol)
-            );
-      } 
-    }
+          ((level === 0 && (cube.rotationID === 1 || cube.rotationID === 0)) ||
+            (level === 1 &&
+              (cube.rotationID === 0 ||
+                cube.rotationID === 3 ||
+                cube.rotationID === 1)) ||
+            (level === 2 && (cube.rotationID === 3 || cube.rotationID === 0)) ||
+            (level === 3 &&
+              (cube.rotationID === 1 ||
+                cube.rotationID === 2 ||
+                cube.rotationID === 3))) &&
+          hasCollision(state, cube, collisionSymbol)
+        );
+      };
+    };
 
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
-    
-  };
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "l",
+      collisionRuleGenerator(this.rotationLevel),
+      leftFailed,
+      leftSuccess
+    );
+  }
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
-          ((level === 0 &&
-            (cube.rotationID === 3 || cube.rotationID === 0)) ||
-            (level === 2 &&
-              (cube.rotationID === 1 || cube.rotationID === 0)) ||
+          ((level === 0 && (cube.rotationID === 3 || cube.rotationID === 0)) ||
+            (level === 2 && (cube.rotationID === 1 || cube.rotationID === 0)) ||
             (level === 3 &&
               (cube.rotationID === 0 ||
                 cube.rotationID === 1 ||
@@ -302,11 +325,19 @@ export class RaisedBlock extends SimplyBlock {
                 cube.rotationID === 3))) &&
           hasCollision(state, cube, collisionSymbol)
         );
-      } 
-    }
+      };
+    };
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
-
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "r",
+      collisionRuleGenerator(this.rotationLevel),
+      rightFailed,
+      rightSuccess
+    );
   };
 
   // The detection logic of the block moving to the down
@@ -333,7 +364,7 @@ export class RaisedBlock extends SimplyBlock {
       {}
     );
 
-    // Depending on the rotationLevel, different rotation strategies 
+    // Depending on the rotationLevel, different rotation strategies
     // are implemented for blocks with different rotationIDs.
     // The reference coordinate of the rotation is the block with rotationID equal to 2
     if (this.rotationLevel === 0) {
@@ -546,38 +577,51 @@ export class LightningBlock extends SimplyBlock {
   moveLeft = (s: State, amount: number): State => {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
-          ((level === 0 &&
-            (cube.rotationID === 2 || cube.rotationID === 0)) ||
+          ((level === 0 && (cube.rotationID === 2 || cube.rotationID === 0)) ||
             (level === 1 &&
               (cube.rotationID === 0 ||
                 cube.rotationID === 3 ||
                 cube.rotationID === 1)) ||
-            (level === 2 &&
-              (cube.rotationID === 3 || cube.rotationID === 1)) ||
+            (level === 2 && (cube.rotationID === 3 || cube.rotationID === 1)) ||
             (level === 3 &&
               (cube.rotationID === 0 ||
                 cube.rotationID === 2 ||
                 cube.rotationID === 3))) &&
           hasCollision(state, cube, collisionSymbol)
         );
-      } 
-    }
+      };
+    };
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "l",
+      collisionRuleGenerator(this.rotationLevel),
+      leftFailed,
+      leftSuccess
+    );
   };
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
-          ((level === 0 &&
-            (cube.rotationID === 3 || cube.rotationID === 1)) ||
-            (level === 2 &&
-              (cube.rotationID === 2 || cube.rotationID === 0)) ||
+          ((level === 0 && (cube.rotationID === 3 || cube.rotationID === 1)) ||
+            (level === 2 && (cube.rotationID === 2 || cube.rotationID === 0)) ||
             (level === 3 &&
               (cube.rotationID === 0 ||
                 cube.rotationID === 1 ||
@@ -586,13 +630,21 @@ export class LightningBlock extends SimplyBlock {
               (cube.rotationID === 0 ||
                 cube.rotationID === 2 ||
                 cube.rotationID === 3))) &&
-            hasCollision(state, cube, collisionSymbol)
+          hasCollision(state, cube, collisionSymbol)
         );
-      } 
-    }
+      };
+    };
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
-
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "r",
+      collisionRuleGenerator(this.rotationLevel),
+      rightFailed,
+      rightSuccess
+    );
   };
 
   // The detection logic of the block moving to the down
@@ -619,7 +671,7 @@ export class LightningBlock extends SimplyBlock {
       {}
     );
 
-    // Depending on the rotationLevel, different rotation strategies 
+    // Depending on the rotationLevel, different rotation strategies
     // are implemented for blocks with different rotationIDs.
     // The reference coordinate of the rotation is the block with rotationID equal to 2
     if (this.rotationLevel === 0) {
@@ -860,7 +912,11 @@ export class LineBlock extends SimplyBlock {
   moveLeft = (s: State, amount: number): State => {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
           ((level === 0 && cube.rotationID === 0) ||
             (level === 1 &&
@@ -868,36 +924,57 @@ export class LineBlock extends SimplyBlock {
                 cube.rotationID === 1 ||
                 cube.rotationID === 2 ||
                 cube.rotationID === 3))) &&
-                hasCollision(state, cube, collisionSymbol)
+          hasCollision(state, cube, collisionSymbol)
         );
-      } 
-    }
+      };
+    };
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "l", collisionRuleGenerator(this.rotationLevel), leftFailed, leftSuccess);
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "l",
+      collisionRuleGenerator(this.rotationLevel),
+      leftFailed,
+      leftSuccess
+    );
   };
 
   // The detection logic of the block moving to the right
   moveRight = (s: State, amount: number): State => {
     // Create collision rules
     const collisionRuleGenerator = (level: number) => {
-      return function collisionRule(state: State, cube:GameCube, collisionSymbol:string):boolean  {
+      return function collisionRule(
+        state: State,
+        cube: GameCube,
+        collisionSymbol: string
+      ): boolean {
         return (
-          ((level=== 0 && cube.rotationID === 3) ||
+          ((level === 0 && cube.rotationID === 3) ||
             (level === 1 &&
               (cube.rotationID === 0 ||
                 cube.rotationID === 1 ||
                 cube.rotationID === 2 ||
                 cube.rotationID === 3))) &&
-                hasCollision(state, cube, collisionSymbol)
+          hasCollision(state, cube, collisionSymbol)
         );
-      } 
-    }
+      };
+    };
     // Return collision check results
-    return this.moveHelper(this, s, amount, "x", "r", collisionRuleGenerator(this.rotationLevel), rightFailed, rightSuccess);
-
+    return this.moveHelper(
+      this,
+      s,
+      amount,
+      "x",
+      "r",
+      collisionRuleGenerator(this.rotationLevel),
+      rightFailed,
+      rightSuccess
+    );
   };
 
-   // The detection logic of the block moving to the down
+  // The detection logic of the block moving to the down
   moveDown = (s: State, amount: number): State => {
     // Check is within boundary
     if (isWithinBoundary(this.cubes, "y", amount)) {
@@ -921,7 +998,7 @@ export class LineBlock extends SimplyBlock {
       {}
     );
 
-    // Depending on the rotationLevel, different rotation strategies 
+    // Depending on the rotationLevel, different rotation strategies
     // are implemented for blocks with different rotationIDs.
     // The reference coordinate of the rotation is the block with rotationID equal to 2
     if (this.rotationLevel === 0) {
@@ -1056,7 +1133,6 @@ abstract class SpecialBlock extends SimplyBlock {
       rotationID: 0,
     } as GameCube;
     this.cubes = [newBlock];
-
   }
 
   // The detection logic of the block moving to the left
@@ -1093,7 +1169,7 @@ abstract class SpecialBlock extends SimplyBlock {
   moveDown = (s: State, amount: number): State => {
     // Check is within boundary
     if (isWithinBoundary(this.cubes, "y", amount)) {
-       // Is there a collision
+      // Is there a collision
       if (this.checkContinueDown(s, this.cubes)) {
         return downFailed(this, s);
       } else {
@@ -1113,7 +1189,7 @@ abstract class SpecialBlock extends SimplyBlock {
   };
 }
 
-// The star block has a unique elimination function. 
+// The star block has a unique elimination function.
 // It can eliminate its own line and the adjacent lines above and below.
 // (a total of three lines)
 export class StarBlock extends SpecialBlock {
@@ -1122,7 +1198,7 @@ export class StarBlock extends SpecialBlock {
   }
 }
 
-// The moment BombBlock stops moving, 
+// The moment BombBlock stops moving,
 // it will blow up itself and the blocks in the four directions, up, down, left, and right.
 export class BombBlock extends SpecialBlock {
   constructor() {
@@ -1178,7 +1254,11 @@ export const tick = (s: State, action: ActionType = null): State => {
 
   // If there is no block, create it
   if (!s.currentGameCube || s.needToCreateCube) {
-    const { currentBlock, nextBlock } = createNewShapeFactory(s, s.shapeSeed, s.colorSeed);
+    const { currentBlock, nextBlock } = createNewShapeFactory(
+      s,
+      s.shapeSeed,
+      s.colorSeed
+    );
     return {
       ...s,
       currentGameCube: s.nextBlock || currentBlock,
@@ -1194,7 +1274,7 @@ export const tick = (s: State, action: ActionType = null): State => {
     } else {
       return state;
     }
-  }
+  };
 
   // Check if it can be moved
   if (s.currentGameCube.checkContinueMove(s)) {
@@ -1210,7 +1290,7 @@ export const tick = (s: State, action: ActionType = null): State => {
           (action as Keypress).amount
         );
         return checkLineRemove(newState);
-      } 
+      }
       // move to the right
       else if (
         (action as Keypress).axis === "x" &&
@@ -1222,7 +1302,7 @@ export const tick = (s: State, action: ActionType = null): State => {
         );
         return checkLineRemove(newState);
       }
-      // move to the down 
+      // move to the down
       else if (
         (action as Keypress).axis === "y" &&
         (action as Keypress).amount > 0
@@ -1246,7 +1326,11 @@ export const tick = (s: State, action: ActionType = null): State => {
     // Save this block
     const storedOldState = s.currentGameCube.updateOldGameCubes(s);
     // Create new block
-    const { currentBlock, nextBlock } = createNewShapeFactory(s, s.shapeSeed, s.colorSeed);
+    const { currentBlock, nextBlock } = createNewShapeFactory(
+      s,
+      s.shapeSeed,
+      s.colorSeed
+    );
     // Checks if the game should end
     if (storedOldState.oldGameCubes[0].some((cube) => cube !== null)) {
       return {

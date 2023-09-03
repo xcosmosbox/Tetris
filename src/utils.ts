@@ -30,7 +30,7 @@ abstract class RNG {
   public static hash = (seed: number) => (RNG.a * seed + RNG.c) % RNG.m;
 
   public static scale = (hash: number) => {
-    return Math.floor(hash / RNG.m * 4 + 1) - 1;
+    return Math.floor((hash / RNG.m) * 4 + 1) - 1;
   };
 }
 /**
@@ -40,13 +40,11 @@ abstract class RNG {
  * @param seed The seed for the random number generator
  */
 export function createRngStreamFromSource<T>(source$: Observable<T>) {
-  return function createRngStream(
-    seed: number = 0
-  ): Observable<number> {
+  return function createRngStream(seed: number = 0): Observable<number> {
     const randomNumberStream = source$.pipe(
-      // when scan finishes processing the seed value 
+      // when scan finishes processing the seed value
       // it will pass the result to the map function to perform the next step
-      scan(seed => RNG.hash(seed), seed),
+      scan((seed) => RNG.hash(seed), seed),
       map(RNG.scale)
     );
 
@@ -54,14 +52,13 @@ export function createRngStreamFromSource<T>(source$: Observable<T>) {
   };
 }
 
-
 /**
- * 
+ *
  * @param shapeSeed random number for creating shape
  * @param colorSeed random number for creating color
- * @returns GameBlock 
+ * @returns GameBlock
  */
-const randomShape = (shapeSeed: number, colorSeed:number): GameBlock => {
+const randomShape = (shapeSeed: number, colorSeed: number): GameBlock => {
   // choose GameBlock class
   const blockContainer = [SquareBlock, RaisedBlock, LightningBlock, LineBlock];
   // return an random GameBlock
@@ -69,7 +66,7 @@ const randomShape = (shapeSeed: number, colorSeed:number): GameBlock => {
 };
 
 /**
- * 
+ *
  * @param seed using seed to choose color
  * @returns reandom color
  */
@@ -86,18 +83,34 @@ export const randomColor = (seed: number): string => {
  * @returns currentBlock choose and nextBlock choose
  */
 export const createNewShapeFactory = (
-  s: State, shapeSeed: number, colorSeed:number
+  s: State,
+  shapeSeed: number,
+  colorSeed: number
 ): {
   currentBlock: GameBlock;
   nextBlock: GameBlock;
 } => {
-  if (RNG.scale(RNG.hash(shapeSeed)+RNG.hash(colorSeed)) < 1) {
-    if (RNG.scale(RNG.hash(RNG.scale(RNG.hash(shapeSeed)+RNG.hash(colorSeed))))< 2 && (s.scoreAndDropRate?.gameLevel as number) > 3) {
-      return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new BombBlock() };
+  if (RNG.scale(RNG.hash(shapeSeed) + RNG.hash(colorSeed)) < 1) {
+    if (
+      RNG.scale(
+        RNG.hash(RNG.scale(RNG.hash(shapeSeed) + RNG.hash(colorSeed)))
+      ) < 2 &&
+      (s.scoreAndDropRate?.gameLevel as number) > 3
+    ) {
+      return {
+        currentBlock: randomShape(shapeSeed, colorSeed),
+        nextBlock: new BombBlock(),
+      };
     }
-    return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: new StarBlock() };
+    return {
+      currentBlock: randomShape(shapeSeed, colorSeed),
+      nextBlock: new StarBlock(),
+    };
   }
-  return { currentBlock: randomShape(shapeSeed,colorSeed), nextBlock: randomShape(shapeSeed,colorSeed) };
+  return {
+    currentBlock: randomShape(shapeSeed, colorSeed),
+    nextBlock: randomShape(shapeSeed, colorSeed),
+  };
 };
 
 /**
@@ -249,7 +262,7 @@ export const lineRemoved = (s: State): State => {
   const moveDownMatrix = clearedCanvas.map((row, index) => {
     // check location
     if (index <= Math.max(...finalRemoveRow)) {
-      // handle edge case 
+      // handle edge case
       return index - finalRemoveRow.length >= 0
         ? clearedCanvas[index - finalRemoveRow.length].map((element) => {
             return element
@@ -302,7 +315,7 @@ export const updateOldGameCubesUtil = (
  * @param cubes GameCubes to be checked
  * @param direction direction
  * @param amount check distance amount
- * @returns 
+ * @returns
  */
 export const isWithinBoundary = (
   cubes: GameCube[],
@@ -336,23 +349,33 @@ export const isWithinBoundary = (
  * @param direction direction symbol
  * @returns boolean value for has collision
  */
-export const hasCollision = (s: State, cube: GameCube, direction: string):boolean => {
+export const hasCollision = (
+  s: State,
+  cube: GameCube,
+  direction: string
+): boolean => {
   // check left edge
   if (direction === "l") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
-    ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1] ? true : false;
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) - 1]
+      ? true
+      : false;
   }
   // check right edge
   if (direction === "r") {
     return s.oldGameCubes[
       Math.floor((cube.position.y as number) / Block.HEIGHT)
-    ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1] ? true : false;
+    ][Math.floor((cube.position.x as number) / Block.WIDTH) + 1]
+      ? true
+      : false;
   }
   // check bottom edge
   return s.oldGameCubes[
     Math.floor((cube.position.y as number) / Block.HEIGHT) + 1
-  ][Math.floor((cube.position.x as number) / Block.WIDTH)] ? true : false;
+  ][Math.floor((cube.position.x as number) / Block.WIDTH)]
+    ? true
+    : false;
 };
 
 /**

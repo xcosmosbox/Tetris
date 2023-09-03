@@ -39,7 +39,7 @@ export const Block = {
   HEIGHT: Viewport.CANVAS_HEIGHT / Constants.GRID_HEIGHT,
 };
 
-// Shapes 
+// Shapes
 export const SHAPES = {
   SQUARE_BLOCK: 0,
   RAISED_BLOCK: 1,
@@ -107,7 +107,7 @@ const initialState: State = {
     .fill(null)
     .map(() => new Array(Constants.GRID_WIDTH).fill(null)),
   shapeSeed: 0,
-  colorSeed: 0
+  colorSeed: 0,
 } as const;
 
 /** Rendering (side effects) */
@@ -325,12 +325,12 @@ export function main() {
         // round runs normally
         if (typeof action === "number") {
           return tick(s);
-        } else if (action && "shapeSeed" in action && action.shapeSeed){
+        } else if (action && "shapeSeed" in action && action.shapeSeed) {
           // Modify shapeSeed
-          return {...s, shapeSeed: action.shapeSeed} as State;
-        } else if (action && "colorSeed" in action && action.colorSeed){
+          return { ...s, shapeSeed: action.shapeSeed } as State;
+        } else if (action && "colorSeed" in action && action.colorSeed) {
           // Modify colorSeed
-          return {...s, colorSeed: action.colorSeed} as State;
+          return { ...s, colorSeed: action.colorSeed } as State;
         } else if (action && "type" in action && action.type === "mouseClick") {
           // Click event fires
           // restart the game
@@ -376,7 +376,7 @@ export function main() {
       }, initialState)
     )
     .subscribe((s: State) => {
-      // render game 
+      // render game
       render(s);
 
       if (s.gameEnd) {
