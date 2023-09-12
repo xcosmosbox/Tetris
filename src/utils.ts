@@ -10,6 +10,7 @@ import {
   StarBlock,
 } from "./state";
 import { scan, type Observable, map, interval } from "rxjs";
+import { GameBlock, State, GameCube, Position, ScoreAndDropRate } from "./types";
 
 /**
  * A random number generator which provides two pure functions

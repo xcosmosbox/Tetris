@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES6",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
+    "outDir": "./dist/",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node",
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
 
     /* Linting */
     "strict": true,

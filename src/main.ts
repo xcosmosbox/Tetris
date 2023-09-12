@@ -18,6 +18,7 @@ import { fromEvent, interval, merge } from "rxjs";
 import { map, filter, scan } from "rxjs/operators";
 import { tick } from "./state";
 import { createRngStreamFromSource } from "./utils";
+import { ActionType, ClickType, GameCube, Keypress, Position, RandomColorGenerator, RandomShapeGenerator, ScoreAndDropRate, State } from "./types";
 
 /** Constants */
 export const Viewport = {

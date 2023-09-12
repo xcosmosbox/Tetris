@@ -1,11 +1,11 @@
 // Position type to record one cube position
-type Position = Readonly<{
+export type Position = Readonly<{
   x: number;
   y: number;
 }>;
 
 // GameCube type to record all information about one cube
-type GameCube = Readonly<{
+export type GameCube = Readonly<{
   color: string;
   shape: number;
   position: Position;
@@ -13,7 +13,7 @@ type GameCube = Readonly<{
 }>;
 
 // ScoreAndDropRate type to record game score and level
-type ScoreAndDropRate = Readonly<{
+export type ScoreAndDropRate = Readonly<{
   gameLevel: number;
   gameScore: number;
   gameHighScore: number;
@@ -22,7 +22,7 @@ type ScoreAndDropRate = Readonly<{
 
 // State type to record all game state information
 // State type is the core used to build the game state management system
-type State = Readonly<{
+export type State = Readonly<{
   gameEnd: boolean;
   currentGameCube?: GameBlock | null;
   nextBlock?: GameBlock | null;
@@ -34,28 +34,28 @@ type State = Readonly<{
 }>;
 
 // Keypress to pack Keypress info
-type Keypress = Readonly<{
+export type Keypress = Readonly<{
   axis: "x" | "y" | "z";
   amount: number;
 }>;
 
 // ClickType to pack mouse click event
-type ClickType = Readonly<{
+export type ClickType = Readonly<{
   type: string;
 }>;
 
 // RandomShapeGenerator to pack random number generator
-type RandomShapeGenerator = Readonly<{
+export type RandomShapeGenerator = Readonly<{
   shapeSeed: number;
 }>;
 
 // RandomColorGenerator to pack random number generator
-type RandomColorGenerator = Readonly<{
+export type RandomColorGenerator = Readonly<{
   colorSeed: number;
 }>;
 
 // ActionType to pack (number | Keypress | ClickType | RandomShapeGenerator | RandomColorGenerator) type
-type ActionType =
+export type ActionType =
   | (
       | number
       | Keypress
@@ -67,7 +67,7 @@ type ActionType =
 
 // GameBlock is the interface of the game block. It is convenient for the class to implement fixed functions and functions
 // GameBlock interface fully reflects the efficient use of generics
-interface GameBlock {
+export interface GameBlock {
   cubes: GameCube[];
   rotationLevel: number;
   moveLeft(s: State, amount: number): State;

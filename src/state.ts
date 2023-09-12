@@ -1,4 +1,5 @@
 import { Block, Constants, SHAPES, Viewport, initialPosition } from "./main";
+import { GameBlock, GameCube, State, Position, ActionType, Keypress } from "./types";
 import {
   leftFailed,
   leftSuccess,
