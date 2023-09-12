@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <link rel="icon" href="/assets/Snipaste_2023-09-12_16-10-10-955060ea.png" type="image/x-icon">
+    <title>FIT2102 A1 2023</title>
+    <!-- <link rel="stylesheet" href="src/style.css"> -->
+    <script src="dist/bundle.js"></script>
+    <script type="module" crossorigin src="dist/bundle.js"></script>
+    <link rel="stylesheet" href="/assets/index-56e50148.css">
+  </head>
+  <body>
+    <h1>Tetris</h1>
+    <main id="main" class="flex row">
+      <svg id="svgCanvas">
+        <!-- game over text box -->
+        <g id="gameOver" visibility="hidden">
+          <rect x="26" y="120" fill="white" height="48" width="149"></rect>
+          <text x="36" y="150">Game Over</text>
+        </g>
+        <!-- game restart -->
+        <g id="gameRestart" visibility="hidden">
+          <rect x="26" y="180" fill="white" height="48" width="151"></rect>
+          <text x="29" y="210" fill="red">Click Screen To Restart</text>
+        </g>
+      </svg>
+      <div id="sideBar" class="flex col">
+        <svg id="svgPreview"></svg>
+        <div id="info" class="flex col">
+          <div class="text">
+            <span class="left">Level: </span>
+            <span class="right" id="levelText">...</span>
+          </div>
+          <div class="text">
+            <span class="left">Score: </span>
+            <span class="right" id="scoreText">...</span>
+          </div>
+          <div class="text">
+            <span class="left">Highscore: </span>
+            <span class="right" id="highScoreText">...</span>
+          </div>
+          <div id="instantReplay" class="button">
+            <span>Click To Replay</span>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    
+    <!-- <script type="module" src="./src/main.ts"></script> -->
+    
+  </body>
+</html>
