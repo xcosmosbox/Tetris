@@ -39,7 +39,7 @@ Comply with FRP Style and Code Pure
 
 
 ## Demos
-![TetrisGIF](https://github.com/xcosmosbox/Tetris/assets/56502269/5d61c0d6-c0d0-4da8-816d-ae29836549fb)
+![TetrisGIF](https://github.com/xcosmosbox/Tetris/assets/56502269/f50cedc4-4298-43a4-970c-ed9af7919565)
 
 
 ## Usage
