@@ -1,4 +1,54 @@
-# Assignment 1
+# Tetris Game with Typescript Implement
+
+Use Typescript to Implement Classic Tetris Game 
+
+Comply with FRP Style and Code Pure
+
+## Core Features
+
+- Observable
+  - Using RxJS to create multiple Observable streams and merge together to form an Observable
+  - The control of the main game process is completely put into the pipeline of `source$`
+- Functional Programming
+  - Disable for-loop
+  - Using `reduce()`, `map()` and `filter()` to conform to FRP style
+  - Make full use of higher order function
+- State Management
+  - One single state to manage game's state
+  - Code purity
+- Event Processing
+  - Listening `KeyboardEvent` and `MouseEvent`
+
+## Implemented Function
+
+- [x] Tetris
+	- [x] Blocks move down from the top discretely
+		- [x] All Tetris Pieces that can be built using 4 blocks 
+	- [x] Marking Board
+	- [x] Row Elimination
+	- [x] Random Next Shape
+	- [x] Next Shape Preview
+	- [x] Difficulty Increase
+	- [x] Game Restart
+	- [x] Advanced Feature
+		- [x] Power-up Block
+			- [x] Eleminate Three Rows 
+		- [x] Debuff Block     
+			- [x] Destroy Around Four Blocks     
+
+
+
+## Demos
+
+
+
+
+
+
+
+
+
+
 
 ## Usage
 
@@ -15,40 +65,4 @@ Start tests:
 Serve up the App (and ctrl-click the URL that appears in the console)
 ```
 > npm run dev
-```
-
-## Implementing features
-
-There are a few files you may wish to modify. The rest should **not** be modified as they are used for configuring the build.
-
-`src/main.ts`
-- Code file used as the entry point
-- Most of your game logic should go here
-- Contains main function that is called on page load
-
-`src/style.css`
-- Stylesheet
-- You may edit this if you wish
-
-`index.html`
-- Main html file
-- Contains scaffold of game window and some sample shapes
-- Feel free to add to this, but avoid changing the existing code, especially the `id` fields
-
-`test/*.test.ts`
-- If you want to add tests, these go here
-- Uses ![`vitest`](https://vitest.dev/api/)
-
-We expect the core logic of your game to be in `src/main.ts`, however, you may elect to spread your code over multiple files. In this case, please use ![TS Modules](https://www.typescriptlang.org/docs/handbook/modules.html).
-
-Avoid separating code into too many files as it makes it hard to mark. The maximum recommended code file structure would be something like
-
-```
-src/
-  main.ts        -- main code logic inc. core game loop
-  types.ts       -- common types and type aliases
-  util.ts        -- util functions
-  state.ts       -- state processing and transformation
-  view.ts        -- rendering
-  observable.ts  -- functions to create Observable streams
 ```
